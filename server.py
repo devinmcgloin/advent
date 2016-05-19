@@ -4,8 +4,7 @@ from smooch import Smooch
 import os
 import adventure.loader as advent
 
-#s_api = Smooch(os.getenv("SMOOCH_KEY_ID"), os.getenv("SMOOCH_SECRET"))
-s_api = Smooch("app_5738e235a9389d2900129650","gDyYAei0IZNwMuDkCy5oeNEa")
+s_api = Smooch(os.getenv("SMOOCH_KEY_ID"), os.getenv("SMOOCH_SECRET"))
 
 app = Flask(__name__)
 
