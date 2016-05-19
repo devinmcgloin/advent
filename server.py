@@ -13,6 +13,7 @@ def process_mesage():
     """Listens at /hooks for posts to that url."""
     data = json.loads(request.data)
     print("INCOMING MESSAGE")
+    print(data)
     user_response = data["messages"]["text"]
     user_id = data["appUser"]["_id"]
     name = data["appUser"]["givenName"]
