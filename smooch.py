@@ -3,9 +3,8 @@ See https://github.com/whatsahoy/smooch-python
 """
 
 import logging
-from jose import jwt
+import jwt
 import json
-from mimetypes import MimeTypes
 import os
 import requests
 
@@ -20,6 +19,8 @@ class Smooch:
             return str(self.response)
 
     def __init__(self, key_id, secret):
+        print("KEY_ID={}".format(key_id))
+        print("SECRET".format(secret))
         self.key_id = key_id
         self.secret = secret
         self.jwt_token = jwt.encode({'scope': 'app'},
@@ -62,7 +63,7 @@ class Smooch:
         print('Asking files: {}'.format(files))
 
         response = caller_func(url=url, headers=headers, json=data)
-        print(response)
+        print(response.content)
 
         if response.status_code == 200 or response.status_code == 201:
             return response
@@ -78,23 +79,6 @@ class Smooch:
         data = {"text": message, "role": role}
         return self.ask('appusers/{0}/conversation/messages'.format(user_id), data, 'post')
 
-
-    def post_media(self, user_id, file_path, sent_by_maker=False):
-        role = "appUser"
-        if sent_by_maker:
-            role = "appMaker"
-
-        data = {"role": role}
-
-        mime = MimeTypes()
-        mime_type, _ = mime.guess_type(file_path)
-
-        file_name = os.path.basename(file_path)
-        files = {'source': (file_name, open(file_path, 'rb'), mime_type)}
-
-        url = 'appusers/{0}/conversation/images'.format(user_id)
-
-        return self.ask(url, data, 'post', files)
 
 
     def get_user(self, user_id):
@@ -122,8 +106,12 @@ class Smooch:
     def get_webhooks(self):
         return self.ask('webhooks', {}, 'get')
 
-    def make_webhook(self, target, triggers):
-        return self.ask('webhooks', {"target": target, "triggers": triggers}, 'post')
+    def make_webhook(self, target, triggers=None):
+        if triggers:
+            return self.ask('webhooks', {"target": target, "triggers": triggers}, 'post')
+        else:
+            return self.ask('webhooks', {"target": target}, 'post')
+
 
     def update_webhook(self, webhook_id, target, triggers):
         return self.ask('webhooks/{0}'.format(webhook_id), {"target": target, "triggers": triggers}, 'put')
