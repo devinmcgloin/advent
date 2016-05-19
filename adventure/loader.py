@@ -11,54 +11,36 @@ from time import sleep
 import os
 import re
 from .data import parse
+import redis
 
-user_saves = {}
-save_dir = "saves/"
+r = redis.from_url(os.environ.get("REDIS_URL"))
 
 def user_exists(user_id):
-    return user_id in iser_saves.keys()
+    return r.exists(user_id)
 
 def new_game(user_id, seed=None):
     """Create new game"""
     game = Game(seed)
-    user_saves[user_id] = game
     load_advent_dat(game)
     game.start()
-    return game.output
+    response = game.output
+    r.set(user_id, game)
+    return response
 
 def respond(user_id, user_response):
     """Gets the game response for a specific user_id and user_response"""
     game = user_saves[user_id]
     user_tupl_resp = tuple(user_response.split(" "))
-    return game.do_command(user_tupl_resp)
+    response = game.do_command(user_tupl_resp)
+    r.set(user_id, game)
+    return response
 
 def reset_game(user_id, seed=None):
     """Clears the game for a specific user_id, need to wipe memory and file game"""
-    new_game(user_id)
-
-def db_load(database=user_saves):
-    """Set up database files"""
-    for dir_name, sub_dir_list, file_list in os.walk(save_dir):
-        for fname in file_list:
-            user_saves[fname] = Game.resume(fname)
-
-def db_save(database=user_saves):
-    """Saves the database files to disk"""
-    for user_id, save in user_saves.items():
-        save.t_suspend(None, save_dir + user_id)
-    pass
+    r.delete(user_id)
 
 def load_advent_dat(data):
     """Called for each came object"""
     datapath = os.path.join(os.path.dirname(__file__), 'advent.dat')
     with open(datapath, 'r', encoding='ascii') as datafile:
         parse(data, datafile)
-
-
-if __name__ == "__main__":
-    print(new_game("mark12"))
-    print(respond("mark12", "no"))
-    print(new_game("john12"))
-    print(respond("john12", "yes"))
-    db_save()
-    print(respond("mark12", "road"))
