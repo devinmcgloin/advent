@@ -4,7 +4,8 @@ from smooch import Smooch
 import os
 import adventure.loader as advent
 
-s_api = Smooch(os.getenv("SMOOCH_KEY_ID"), os.getenv("SMOOCH_SECRET"))
+#s_api = Smooch(os.getenv("SMOOCH_KEY_ID"), os.getenv("SMOOCH_SECRET"))
+s_api = Smooch("app_5738e235a9389d2900129650","gDyYAei0IZNwMuDkCy5oeNEa")
 
 app = Flask(__name__)
 
@@ -29,5 +30,5 @@ def index():
     return 'Welcome to Adventure'
 
 if __name__ == '__main__':
-    webhook_id, webhook_secret = s_api.ensure_webhook_exists("message:appUser", "advent-term-120.herokuapp.com/hooks")
+    webhook_id, webhook_secret = s_api.make_webhook("http://advent-term-120.herokuapp.com/hooks", "message")
     app.run()

@@ -3,7 +3,7 @@ See https://github.com/whatsahoy/smooch-python
 """
 
 import logging
-import jwt
+from jose import jwt
 import json
 from mimetypes import MimeTypes
 import os
@@ -22,11 +22,16 @@ class Smooch:
     def __init__(self, key_id, secret):
         self.key_id = key_id
         self.secret = secret
-        self.jwt_token = jwt.encode({'scope': 'app'}, secret, algorithm='HS256', headers={"kid": key_id})
+        self.jwt_token = jwt.encode({'scope': 'app'},
+                                    secret,
+                                    algorithm='HS256',
+                                    headers={"kid": key_id, "alg": "HS256"})
 
-    @staticmethod
     def jwt_for_user(key_id, secret, user_id):
-        return jwt.encode({'scope': 'appUser', 'userId': user_id}, secret, algorithm='HS256', headers={"kid": key_id})
+        return jwt.encode({'scope': 'appUser', 'userId': user_id},
+                          secret,
+                          algorithm='HS256',
+                          headers={"kid": key_id, "alg": "HS256"})
 
     def user_jwt(self, user_id):
         return self.jwt_for_user(self.key_id, self.secret, user_id)
@@ -47,16 +52,17 @@ class Smooch:
         headers = self.headers
         if files:
             headers.pop('content-type')
-        elif method == 'put' or method == 'post':
-            data = json.dumps(data)
 
-        log.debug('Asking method: %s', caller_func)
-        log.debug('Asking url: %s', url)
-        log.debug('Asking headers: %s', headers)
-        log.debug('Asking data: %s', data)
-        log.debug('Asking files: %s', files)
 
-        response = caller_func(url=url, headers=headers, data=data, files=files)
+
+        print('Asking method: {}'.format(method))
+        print('Asking url: {}'.format(url))
+        print('Asking headers: {}'.format(headers))
+        print('Asking data: {}'.format(data))
+        print('Asking files: {}'.format(files))
+
+        response = caller_func(url=url, headers=headers, json=data)
+        print(response)
 
         if response.status_code == 200 or response.status_code == 201:
             return response
@@ -172,6 +178,6 @@ class Smooch:
     @property
     def headers(self):
         return {
-            'Authorization': 'Bearer {0}'.format(self.jwt_token),
+            'authorization': 'Bearer {0}'.format(self.jwt_token),
             'content-type': 'application/json'
         }
