@@ -20,7 +20,7 @@ class Smooch:
 
     def __init__(self, key_id, secret):
         print("KEY_ID={}".format(key_id))
-        print("SECRET".format(secret))
+        print("SECRET={}".format(secret))
         self.key_id = key_id
         self.secret = secret
         self.jwt_token = jwt.encode({'scope': 'app'},

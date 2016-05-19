@@ -31,4 +31,5 @@ def index():
 if __name__ == '__main__':
     s_api.delete_all_webhooks()
     webhook_id, webhook_secret = s_api.make_webhook("http://advent-term-120.herokuapp.com/hooks", "messages")
-    app.run()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
