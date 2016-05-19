@@ -6,11 +6,11 @@ Apache License, Version 2.0 as detailed in the accompanying README.txt.
 """
 
 #------------------------------------------
-from game import Game
+from .game import Game
 from time import sleep
 import os
 import re
-from data import parse
+from .data import parse
 
 user_saves = {}
 save_dir = "saves/"

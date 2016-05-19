@@ -23,7 +23,7 @@ def process_mesage():
     advent.db_save()
     return "OK"
 
-@app.route('')
+@app.route('/')
 def index():
     """Throws up HTML to index page to check if working properly"""
     return 'Welcome to Adventure'

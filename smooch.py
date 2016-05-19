@@ -11,7 +11,6 @@ import requests
 
 log = logging.getLogger(__name__)
 
-
 class Smooch:
     class APIError(Exception):
         def __init__(self, response):
