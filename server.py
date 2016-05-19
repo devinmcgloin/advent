@@ -29,5 +29,5 @@ def index():
     return 'Welcome to Adventure'
 
 if __name__ == '__main__':
-    webhook_id, webhook_secret = api.ensure_webhook_exists("message:appUser", "advent-term-120.herokuapp.com/hooks")
+    webhook_id, webhook_secret = s_api.ensure_webhook_exists("message:appUser", "advent-term-120.herokuapp.com/hooks")
     app.run()
