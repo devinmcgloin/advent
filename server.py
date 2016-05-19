@@ -23,6 +23,11 @@ def process_mesage():
     advent.db_save()
     return "OK"
 
+@app.route('')
+def index():
+    """Throws up HTML to index page to check if working properly"""
+    return 'Welcome to Adventure'
+
 if __name__ == '__main__':
     webhook_id, webhook_secret = api.ensure_webhook_exists("message:appUser", "advent-term-120.herokuapp.com/hooks")
     app.run()
