@@ -19,7 +19,7 @@ def process_mesage():
     else:
         response = advent.new_game(user_id)
 
-    s_api.post_message(iser_id, response, True)
+    s_api.post_message(user_id, response, True)
     advent.db_save()
     return "OK"
 
