@@ -50,5 +50,5 @@ def load_advent_dat(data):
         parse(data, datafile)
 
 def format_response(response):
-    clean_response = response.replace("\n"," ").lower().strip().capitalize().split(".")
-    return ".\n".join(clean_response)
+    clean_response = response.replace("\n"," ").lower().strip().split(".")
+    return ".\n".join(map((lambda s: s.strip().capitalize()),clean_response))
