@@ -6,7 +6,7 @@ import adventure.loader as advent
 import time
 import logging
 import sys
-import smooch_parse
+import smooch_parse as parse
 
 s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
 
@@ -25,10 +25,10 @@ def process_mesage():
     # we get back an array of messages
     try:
         logging.debug("ATTEMPTING PARSE")
-        user_response = most_recent_msg(data)
-        user_id = get_user_id(data)
+        user_response = parse.most_recent_msg(data)
+        user_id = parse.get_user_id(data)
     except:
-        logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
+        logging.debug(sys.exc_info()[0])
 
     logging.debug("user={0}, said={1}".format(user_id, user_response))
 
