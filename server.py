@@ -17,7 +17,7 @@ def process_mesage():
 
     logging.debug("PROCCESSING MESSAGE")
 
-    data = json.loads(json.loads(request.data.decode("utf-8")))
+    data = json.loads(request.data.decode("utf-8"))
 
     logging.debug(data)
     logging.debug(type(data))
