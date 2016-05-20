@@ -26,8 +26,10 @@ def process_mesage():
     print("user={0}, said={1}".format(user_id, user_response))
 
     if advent.user_exists(user_id):
+        print("USER EXISTS")
         response = advent.respond(user_id, user_response)
     else:
+        print("CREATING NEW USER")
         response = advent.new_game(user_id)
 
     print("game reply={0}".format(response))

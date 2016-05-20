@@ -36,7 +36,7 @@ def respond(user_id, user_response):
     game = Game.resume(r.get(user_id))
     user_tupl_resp = tuple(user_response.split(" "))
     response = game.do_command(user_tupl_resp)
-    r.set(user_id, json.dumps(game))
+    r.set(user_id, game.t_suspend())
     return response
 
 def reset_game(user_id, seed=None):
