@@ -20,7 +20,7 @@ def process_mesage():
     try:
         print("ATTEMPTING PARSE")
         user_response = data["messages"][0]["text"]
-        user_id = data["appUser"]["_id"]
+        user_id = data["appUser"]["userId"]
     except e:
         print("PARSE FAILED = {}".format(e))
     print("user={0}, said={1}".format(user_id, user_response))
