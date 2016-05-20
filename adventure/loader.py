@@ -1,8 +1,5 @@
-"""The Adventure game.
-
-Copyright 2010-2015 Brandon Rhodes.  Licensed as free software under the
-Apache License, Version 2.0 as detailed in the accompanying README.txt.
-
+"""
+Handles interfacing with the Adventure module.
 """
 
 #------------------------------------------
@@ -10,6 +7,8 @@ from .game import Game
 from time import sleep
 import os
 import re
+
+
 from .data import parse
 import redis
 import logging

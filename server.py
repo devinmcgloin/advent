@@ -16,30 +16,22 @@ app = Flask(__name__)
 def process_mesage():
     """Listens at /hooks for posts to that url."""
 
-    logging.debug("PROCCESSING MESSAGE")
-
     data = json.loads(request.data.decode("utf-8"))
 
-    logging.debug(data)
-    logging.debug(type(data))
-    # we get back an array of messages
     try:
-        logging.debug("ATTEMPTING PARSE")
         user_response = parse.most_recent_msg(data)
         user_id = parse.get_user_id(data)
     except:
-        logging.debug(sys.exc_info()[0])
-
-    logging.debug("user={0}, said={1}".format(user_id, user_response))
+        logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
 
     if advent.user_exists(user_id):
-        logging.debug("USER EXISTS")
+        logging.debug("PROCESSING RESPONSE FOR={}".format(user_id))
         response = advent.respond(user_id, user_response)
     else:
-        logging.debug("CREATING NEW USER")
+        logging.debug("CREATING NEW USER={}".format(user_id))
         response = advent.new_game(user_id)
 
-    logging.debug("game reply={0}".format(response))
+    logging.debug("user={} game reply={0}".format(user_id,response))
     s_api.post_message(user_id, response, True)
     return "OK"
 
