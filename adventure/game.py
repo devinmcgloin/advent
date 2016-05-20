@@ -1548,35 +1548,22 @@ class Game(Data):
                 verb.text))
         self.finish_turn()
 
-    def t_suspend(self, verb, obj):
-        if isinstance(obj, str):
-            savefile = open(obj, 'wb')
-        else:
-            savefile = obj
+    def t_suspend(self):
         r = self.random_generator  # must replace live object with static state
         self.random_state = r.getstate()
         try:
             del self.random_generator
-            savefile.write(zlib.compress(pickle.dumps(self), 9))
+            return zlib.compress(pickle.dumps(self), 9)
         finally:
             self.random_generator = r
-            if savefile is not obj:
-                savefile.close()
-        self.write('Game saved')
 
     def i_hours(self, verb):
         self.write('Open all day')
 
     @classmethod
-    def resume(self, obj):
+    def resume(self, data):
         """Returns an Adventure game saved to the given file."""
-        if isinstance(obj, str):
-            savefile = open(obj, 'rb')
-        else:
-            savefile = obj
-        game = pickle.loads(zlib.decompress(savefile.read()))
-        if savefile is not obj:
-            savefile.close()
+        game = pickle.loads(zlib.decompress(data))
         # Reinstate the random number generator.
         game.random_generator = random.Random()
         game.random_generator.setstate(game.random_state)

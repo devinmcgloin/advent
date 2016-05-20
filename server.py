@@ -14,10 +14,10 @@ def process_mesage():
     data = json.loads(request.data)
     print("INCOMING MESSAGE")
     print(data)
-    user_response = data["messages"]["text"]
+    # we get back an array of messages
+    user_response = data["messages"][0]["text"]
     user_id = data["appUser"]["_id"]
-    name = data["appUser"]["givenName"]
-    print("{0} said {1}".format(name, user_response))
+    print("user={0}, said={1}".format(user_id, user_response))
 
     if advent.user_exists(user_id):
         response = advent.respond(user_id, user_response)

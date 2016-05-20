@@ -26,7 +26,9 @@ class Smooch:
         self.jwt_token = jwt.encode({'scope': 'app'},
                                     secret,
                                     algorithm='HS256',
-                                    headers={"kid": key_id, "alg": "HS256"})
+                                    headers={"kid": key_id, "alg": "HS256"}).decode("utf-8")
+
+        print(self.jwt_token)
 
     def jwt_for_user(key_id, secret, user_id):
         return jwt.encode({'scope': 'appUser', 'userId': user_id},
@@ -54,13 +56,7 @@ class Smooch:
         if files:
             headers.pop('content-type')
 
-
-
-        print('Asking method: {}'.format(method))
-        print('Asking url: {}'.format(url))
-        print('Asking headers: {}'.format(headers))
-        print('Asking data: {}'.format(data))
-        print('Asking files: {}'.format(files))
+        print("headers={}".format(headers))
 
         response = caller_func(url=url, headers=headers, json=data)
         print(response.content)
