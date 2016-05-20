@@ -25,7 +25,7 @@ def process_mesage():
     try:
         logging.debug("ATTEMPTING PARSE")
         user_response = data["messages"][0]["text"]
-        user_id = data["appUser"]["userId"]
+        user_id = data["appUser"]["_id"]
     except:
         logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
 
