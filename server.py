@@ -3,6 +3,7 @@ import json
 from smooch import Smooch
 import os
 import adventure.loader as advent
+import time
 
 s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
 
@@ -13,6 +14,7 @@ def process_mesage():
     """Listens at /hooks for posts to that url."""
     data = json.loads(request.data)
     print("INCOMING MESSAGE")
+    time.sleep(10)
     print(data)
     # we get back an array of messages
     user_response = data["messages"][0]["text"]
