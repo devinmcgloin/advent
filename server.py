@@ -12,13 +12,17 @@ app = Flask(__name__)
 @app.route('/hooks',methods=['POST'])
 def process_mesage():
     """Listens at /hooks for posts to that url."""
-    data = json.loads(request.data)
-    print("INCOMING MESSAGE")
-    time.sleep(10)
-    print(data)
+
+
+    data = json.loads(request.get_json())
+    print(type(data))
     # we get back an array of messages
-    user_response = data["messages"][0]["text"]
-    user_id = data["appUser"]["_id"]
+    try:
+        print("ATTEMPTING PARSE")
+        user_response = data["messages"][0]["text"]
+        user_id = data["appUser"]["_id"]
+    except e:
+        print("PARSE FAILED = {}".format(e))
     print("user={0}, said={1}".format(user_id, user_response))
 
     if advent.user_exists(user_id):
