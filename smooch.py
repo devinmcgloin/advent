@@ -55,10 +55,9 @@ class Smooch:
         if files:
             headers.pop('content-type')
 
-        logging.debug("headers={}".format(headers))
+        #logging.debug("headers={}".format(headers))
 
         response = caller_func(url=url, headers=headers, json=data)
-        logging.debug(response.content)
 
         if response.status_code == 200 or response.status_code == 201:
             return response
