@@ -14,9 +14,9 @@ app = Flask(__name__)
 def process_mesage():
     """Listens at /hooks for posts to that url."""
 
-
+    logging.debug("PROCCESSING MESSAGE")
     data = json.loads(request.get_json())
-    print(type(data))
+    logging.debug(type(data))
     # we get back an array of messages
     try:
         logging.debug("ATTEMPTING PARSE")
