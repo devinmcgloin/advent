@@ -8,8 +8,6 @@ import json
 import os
 import requests
 
-log = logging.getLogger(__name__)
-
 class Smooch:
     class APIError(Exception):
         def __init__(self, response):
@@ -19,8 +17,9 @@ class Smooch:
             return str(self.response)
 
     def __init__(self, key_id, secret):
-        print("KEY_ID={}".format(key_id))
-        print("SECRET={}".format(secret))
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
+        logging.debug("KEY_ID={}".format(key_id))
+        logging.debug("SECRET={}".format(secret))
         self.key_id = key_id
         self.secret = secret
         self.jwt_token = jwt.encode({'scope': 'app'},
@@ -28,7 +27,7 @@ class Smooch:
                                     algorithm='HS256',
                                     headers={"kid": key_id, "alg": "HS256"}).decode("utf-8")
 
-        print(self.jwt_token)
+        logging.debug(self.jwt_token)
 
     def jwt_for_user(key_id, secret, user_id):
         return jwt.encode({'scope': 'appUser', 'userId': user_id},
@@ -56,10 +55,10 @@ class Smooch:
         if files:
             headers.pop('content-type')
 
-        print("headers={}".format(headers))
+        logging.debug("headers={}".format(headers))
 
         response = caller_func(url=url, headers=headers, json=data)
-        print(response.content)
+        logging.debug(response.content)
 
         if response.status_code == 200 or response.status_code == 201:
             return response
@@ -73,7 +72,9 @@ class Smooch:
             role = "appMaker"
 
         data = {"text": message, "role": role}
-        return self.ask('appusers/{0}/conversation/messages'.format(user_id), data, 'post')
+        return self.ask('appusers/{0}/conversation/messages'.format(user_id),
+                        data,
+                        'post')
 
 
 

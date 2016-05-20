@@ -4,8 +4,7 @@ from smooch import Smooch
 import os
 import adventure.loader as advent
 import time
-import sys
-
+import logging
 
 s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
 
@@ -20,22 +19,22 @@ def process_mesage():
     print(type(data))
     # we get back an array of messages
     try:
-        print("ATTEMPTING PARSE")
+        logging.debug("ATTEMPTING PARSE")
         user_response = data["messages"][0]["text"]
         user_id = data["appUser"]["userId"]
     except e:
-        print("PARSE FAILED = {}".format(e))
-    print("user={0}, said={1}".format(user_id, user_response))
+        logging.debug("PARSE FAILED = {}".format(e))
+    logging.debug("user={0}, said={1}".format(user_id, user_response))
 
     if advent.user_exists(user_id):
-        print("USER EXISTS")
+        logging.debug("USER EXISTS")
         response = advent.respond(user_id, user_response)
     else:
-        print("CREATING NEW USER")
+        logging.debug("CREATING NEW USER")
         response = advent.new_game(user_id)
 
-    print("game reply={0}".format(response))
-    sys.stdout.flush()
+    logging.debug("game reply={0}".format(response))
+
 
     s_api.post_message(user_id, response, True)
     advent.db_save()
@@ -47,6 +46,7 @@ def index():
     return 'Welcome to Adventure'
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
     s_api.delete_all_webhooks()
     webhook_id, webhook_secret = s_api.make_webhook("http://advent-term-120.herokuapp.com/hooks", "message:appUser")
     port = int(os.environ.get('PORT', 5000))
