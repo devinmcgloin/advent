@@ -4,6 +4,8 @@ from smooch import Smooch
 import os
 import adventure.loader as advent
 import time
+import sys
+
 
 s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
 
@@ -33,6 +35,7 @@ def process_mesage():
         response = advent.new_game(user_id)
 
     print("game reply={0}".format(response))
+    sys.stdout.flush()
 
     s_api.post_message(user_id, response, True)
     advent.db_save()
