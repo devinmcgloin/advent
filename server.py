@@ -5,6 +5,7 @@ import os
 import adventure.loader as advent
 import time
 import logging
+import sys
 
 s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
 
@@ -15,15 +16,19 @@ def process_mesage():
     """Listens at /hooks for posts to that url."""
 
     logging.debug("PROCCESSING MESSAGE")
-    data = json.loads(request.get_json())
+
+    data = json.loads(json.loads(request.data.decode("utf-8")))
+
+    logging.debug(data)
     logging.debug(type(data))
     # we get back an array of messages
     try:
         logging.debug("ATTEMPTING PARSE")
         user_response = data["messages"][0]["text"]
         user_id = data["appUser"]["userId"]
-    except e:
-        logging.debug("PARSE FAILED = {}".format(e))
+    except:
+        logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
+
     logging.debug("user={0}, said={1}".format(user_id, user_response))
 
     if advent.user_exists(user_id):
