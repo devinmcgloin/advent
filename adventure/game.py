@@ -76,6 +76,7 @@ class Game(Data):
 
     def yesno(self, s, yesno_callback, casual=False):
         """Ask a question and prepare to receive a yes-or-no answer."""
+        logging.debug("yesno-callback".format(yesno_callback))
         self.write(s)
         self.yesno_callback = yesno_callback
         self.yesno_casual = casual
