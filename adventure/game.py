@@ -504,11 +504,11 @@ class Game(Data):
         if not 1 <= len(words) <= 2:
             return self.dont_understand()
 
-        if words[0] == 'save' and len(words) > 1:
+        #if words[0] == 'save' and len(words) > 1:
             # Handle suspend separately, since filename can be anything,
             # and is not restricted to being a vocabulary word (and, in
             # fact, it can be an open file).
-            return self.t_suspend(words[0], words[1])
+            #return self.t_suspend(words[0], words[1])
 
         words = [ self.vocabulary.get(word) for word in words ]
         if None in words:
@@ -1291,7 +1291,7 @@ class Game(Data):
             if first:
                 self.write_message(99)
                 first = False
-            self.write(obj.inventory_message)
+        self.write(", ".join([obj.inventory_message for obj in objs]) + ".")
         if self.bear.is_toting:
             self.write_message(141)
         if not objs:

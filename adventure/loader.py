@@ -15,6 +15,8 @@ import logging
 
 r = redis.from_url(os.environ.get("REDIS_URL"))
 
+capitalize = ["don", "woods", "i", "willie", "crowther.", "devin", "mcgloin"]
+
 def user_exists(user_id):
     return r.exists(user_id)
 
@@ -48,5 +50,18 @@ def load_advent_dat(data):
         parse(data, datafile)
 
 def format_response(response):
-    clean_response = response.replace("\n"," ").lower().strip().split(".")
-    return ".\n".join(map((lambda s: s.strip().capitalize()),clean_response))
+    clean_response = response.replace("\n"," ").lower().strip()
+    clean_response = " ".join([cap(s) for s in clean_response.split(" ")])
+    rsp = ".\n".join(map((lambda s: first_upper(s.strip())),clean_response.split(".")))
+    return rsp
+
+def cap(s):
+    if s == "mcgloin":
+        return "McGloin"
+    if s in capitalize:
+        return s.capitalize()
+    return s
+
+def first_upper(s):
+    print(s)
+    return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), s, 1)
