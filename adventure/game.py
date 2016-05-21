@@ -1646,69 +1646,72 @@ class Game(Data):
                        'would be a neat trick!\n\nCongratulations!!\n')
         self.is_done = True
 
-def finish_turn_callback(yes):
-    if yes:
-        self.write(hint.message)
-        hint.used = True
-    else:
-        self.write_message(54)
+    def finish_turn_callback(self,yes):
+        if yes:
+            self.write(hint.message)
+            hint.used = True
+        else:
+            self.write_message(54)
 
 
-def die_callback(yes):
-    if yes:
-        self.write_message(80 + self.deaths * 2)
-        if self.deaths < self.max_deaths:
-            # do water and oil thing
-            self.is_dead = False
-            if self.lamp.is_toting:
-                self.lamp.prop = 0
-            for obj in self.inventory:
-                if obj is self.lamp:
-                    obj.drop(self.rooms[1])
-                else:
-                    obj.drop(self.oldloc2)
-            self.loc = self.rooms[3]
-            self.describe_location()
-            return
-    else:
-        self.write_message(54)
-    self.score_and_exit()
-
-def t_attack_callback(yes):
-    self.write(obj.messages[1])
-    obj.prop = 2
-    obj.is_fixed = True
-    oldroom1 = obj.rooms[0]
-    oldroom2 = obj.rooms[1]
-    newroom = self.rooms[ (oldroom1.n + oldroom2.n) // 2 ]
-    obj.drop(newroom)
-    self.rug.prop = 0
-    self.rug.is_fixed = False
-    self.rug.drop(newroom)
-    for oldroom in (oldroom1, oldroom2):
-        for o in self.objects_at(oldroom):
-            o.drop(newroom)
-    self.move_to(newroom)
-
-def i_quit_callback(yes):
-    self.write_message(54)
-    if yes:
+    def die_callback(self,yes):
+        if yes:
+            self.write_message(80 + self.deaths * 2)
+            if self.deaths < self.max_deaths:
+                # do water and oil thing
+                self.is_dead = False
+                if self.lamp.is_toting:
+                    self.lamp.prop = 0
+                for obj in self.inventory:
+                    if obj is self.lamp:
+                        obj.drop(self.rooms[1])
+                    else:
+                        obj.drop(self.oldloc2)
+                self.loc = self.rooms[3]
+                self.describe_location()
+                return
+        else:
+            self.write_message(54)
         self.score_and_exit()
 
-def i_score_callback(yes):
-    self.write_message(54)
-    if yes:
-        self.score_and_exit()
+    def t_attack_callback(self,yes):
+        self.write(obj.messages[1])
+        obj.prop = 2
+        obj.is_fixed = True
+        oldroom1 = obj.rooms[0]
+        oldroom2 = obj.rooms[1]
+        newroom = self.rooms[ (oldroom1.n + oldroom2.n) // 2 ]
+        obj.drop(newroom)
+        self.rug.prop = 0
+        self.rug.is_fixed = False
+        self.rug.drop(newroom)
+        for oldroom in (oldroom1, oldroom2):
+            for o in self.objects_at(oldroom):
+                o.drop(newroom)
+        self.move_to(newroom)
 
-def t_read_callback(yes):
-    if yes:
-        self.hints[2].used = True
-        self.write_message(193)
-    else:
+    def i_quit_callback(self,yes):
         self.write_message(54)
+        if yes:
+            self.score_and_exit()
 
-CALLBACKS = {"finish_turn_callback":finish_turn_callback,
-             "die_callback":die_callback,
-             "t_attack_callback":t_attack_callback,
-             "i_quit_callback":i_quit_callback,
-             "t_read_callback":t_read_callback}
+    def i_score_callback(self,yes):
+        self.write_message(54)
+        if yes:
+            self.score_and_exit()
+
+    def t_read_callback(self,yes):
+        if yes:
+            self.hints[2].used = True
+            self.write_message(193)
+        else:
+            self.write_message(54)
+
+    def call_callback(self, callback_id, answer):
+        callbacks = {"finish_turn_callback":self.finish_turn_callback,
+                     "die_callback":self.die_callback,
+                     "t_attack_callback":self.t_attack_callback,
+                     "i_quit_callback":self.i_quit_callback,
+                     "t_read_callback":self.t_read_callback}
+        callback = callbacks[callback_id]
+        callback(answer)
