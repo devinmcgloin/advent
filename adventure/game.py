@@ -1711,7 +1711,7 @@ class Game(Data):
 
     def call_callback(self, answer, **kwargs):
         logging.debug(kwargs)
-        callback_id = kwargs["name"]
+        callback_id = kwargs["callback_id"]
         if "finish_turn_callback" == callback_id:
             self.finish_turn_callback(answer, kwargs["dat"])
         elif "die_callback" == callback_id:
