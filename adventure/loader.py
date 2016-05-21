@@ -68,20 +68,14 @@ def first_upper(s):
 
 def accum_words(response):
     """Takes words split by space and capitalizes first character and special cases"""
-    sentences = []
-    first = True
-    s = ""
-    for c in response:
-        if c == "?" or c == "." or c == "!":
-            s += c
-            sentences.append(s)
-            s = ""
-            first = True
-        elif first and c == " ":
-            continue
-        elif first:
-            first = False
-            s += c.upper()
-        else:
-            s += c
-    return sentences
+    cleaned_sentences = []
+    regex = re.compile("(\!+|\?+|\.+)")
+    split = re.split(regex, response)
+    print(split)
+    puncts = split[1::2]
+    sentences = split[::2]
+    for s, p in zip(sentences, puncts):
+        sent = s.strip()
+        pun = p.strip()
+        cleaned_sentences.append(sent.capitalize() + pun)
+    return cleaned_sentences
