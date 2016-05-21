@@ -26,6 +26,7 @@ def process_mesage():
         user_id = parse.get_user_id(data)
     except:
         logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
+        return
 
     if tip.is_tip(user_response):
         tip_amount = tip.tip_amount(user_response)
@@ -40,7 +41,7 @@ def process_mesage():
         logging.debug("CREATING NEW USER={}".format(user_id))
         response = advent.new_game(user_id)
 
-    r.lpush("conv:" + user_id, user_reponse)
+    r.lpush("conv:" + user_id, user_response)
     r.lpush("conv:" + user_id, response)
 
     logging.debug("user={0} game reply={1}".format(user_id,response))
