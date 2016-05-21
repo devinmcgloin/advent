@@ -52,7 +52,6 @@ def load_advent_dat(data):
 def format_response(response):
     clean_response = response.replace("\n"," ").lower().strip()
     clean_response = " ".join([cap(s) for s in clean_response.split(" ")])
-    print(clean_response)
     rsp = "\n".join(accum_words(clean_response))
     return rsp
 
@@ -73,10 +72,9 @@ def accum_words(response):
     first = True
     s = ""
     for c in response:
-        if c == "?" or c == ".":
+        if c == "?" or c == "." or c == "!":
             s += c
             sentences.append(s)
-            print(s)
             s = ""
             first = True
         elif first and c == " ":
