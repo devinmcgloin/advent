@@ -52,8 +52,8 @@ def load_advent_dat(data):
 def format_response(response):
     clean_response = response.replace("\n"," ").lower().strip()
     clean_response = " ".join([cap(s) for s in clean_response.split(" ")])
-    regex = re.compile("\?|\.")
-    rsp = ".\n".join(map((lambda s: first_upper(s.strip())),re.split(regex, clean_response)))
+    print(clean_response)
+    rsp = "\n".join(accum_words(clean_response))
     return rsp
 
 def cap(s):
@@ -64,5 +64,26 @@ def cap(s):
     return s
 
 def first_upper(s):
-    print(s)
+    """Capitalizes the first letter, leaves everything else alone"""
     return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), s, 1)
+
+def accum_words(response):
+    """Takes words split by space and capitalizes first character and special cases"""
+    sentences = []
+    first = True
+    s = ""
+    for c in response:
+        if c == "?" or c == ".":
+            s += c
+            sentences.append(s)
+            print(s)
+            s = ""
+            first = True
+        elif first and c == " ":
+            continue
+        elif first:
+            first = False
+            s += c.upper()
+        else:
+            s += c
+    return sentences
