@@ -74,11 +74,11 @@ class Game(Data):
     def write_message(self, n):
         self.write(self.messages[n])
 
-    def yesno(self, s, yesno_callback, casual=False):
+    def yesno(self, s, casual=False, **kwargs):
         """Ask a question and prepare to receive a yes-or-no answer."""
-        logging.debug("yesno-callback={}".format(yesno_callback))
+        logging.debug("yesno-callback={}".format(kwargs))
         self.write(s)
-        self.yesno_callback = yesno_callback
+        self.yesno_callback = kwargs
         self.yesno_casual = casual
 
     # Properties of the cave.
