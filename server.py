@@ -7,8 +7,11 @@ import time
 import logging
 import sys
 import smooch_parse as parse
+import tip
+import redis
 
 s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
+r = redis.from_url(os.environ.get("REDIS_URL"))
 
 app = Flask(__name__)
 
@@ -23,6 +26,12 @@ def process_mesage():
         user_id = parse.get_user_id(data)
     except:
         logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
+
+    if tip.is_tip(user_response):
+        tip_amount = tip.tip_amount(user_response)
+        s_api.post_message(user_id, "$[{0}]({1})".format("Confirm Tip", tip_amount))
+        r.lpush("tip:" + user_id, tip_amount)
+        return
 
     if advent.user_exists(user_id):
         logging.debug("PROCESSING RESPONSE FOR={}".format(user_id))
