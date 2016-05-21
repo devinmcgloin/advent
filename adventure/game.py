@@ -1708,10 +1708,13 @@ class Game(Data):
             self.write_message(54)
 
     def call_callback(self, callback_id, answer):
-        callbacks = {"finish_turn_callback":self.finish_turn_callback,
-                     "die_callback":self.die_callback,
-                     "t_attack_callback":self.t_attack_callback,
-                     "i_quit_callback":self.i_quit_callback,
-                     "t_read_callback":self.t_read_callback}
-        callback = callbacks[callback_id]
-        callback(answer)
+        if "finish_turn_callback":
+            self.finish_turn_callback(answer)
+        elif "die_callback" == callback_id:
+            self.die_callback(answer)
+        elif "t_attack_callback" == callback_id:
+            self.t_attack_callback(answer)
+        elif "i_quit_callback" == callback_id:
+            self.i_quit_callback(answer)
+        elif "t_read_callback" == callback_id:
+            self.t_read_callback(answer)
