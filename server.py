@@ -39,10 +39,10 @@ def process_mesage():
 
     if advent.user_exists(user_id):
         logging.debug("PROCESSING RESPONSE FOR={}".format(user_id))
-        response = advent.respond(user_id, user_response)
+        response = advent.respond(user_id, user_response).strip()
     else:
         logging.debug("CREATING NEW USER={}".format(user_id))
-        response = advent.new_game(user_id)
+        response = advent.new_game(user_id).strip()
 
     r.lpush("conv:" + user_id, user_response)
     r.lpush("conv:" + user_id, response)
