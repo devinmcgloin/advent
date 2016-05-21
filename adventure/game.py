@@ -439,9 +439,9 @@ class Game(Data):
                     self.write('Please answer the question.')
                     return
             else:
-                callback = CALLBACKS[self.yesno_callback]
+                
                 self.yesno_callback = None
-                callback(answer)
+                self.call_callback(self.yesno_callback,answer)
                 return
 
         if self.is_dead:
