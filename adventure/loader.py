@@ -27,15 +27,15 @@ def new_game(user_id, seed=None):
     load_advent_dat(game)
     game.start()
     response = format_response(game.output)
-    r.set(user_id, game.t_suspend())
+    r.set("save:" + user_id, game.t_suspend())
     return response
 
 def respond(user_id, user_response):
     """Gets the game response for a specific user_id and user_response"""
-    game = Game.resume(r.get(user_id))
+    game = Game.resume(r.get("save:" + user_id))
     user_tupl_resp = tuple(user_response.lower().split(" "))
     response = format_response(game.do_command(user_tupl_resp))
-    r.set(user_id, game.t_suspend())
+    r.set("save:" + user_id, game.t_suspend())
     return response
 
 def reset_game(user_id, seed=None):
