@@ -71,11 +71,13 @@ def accum_words(response):
     cleaned_sentences = []
     regex = re.compile("(\!+|\?+|\.+)")
     split = re.split(regex, response)
-    print(split)
-    puncts = split[1::2]
-    sentences = split[::2]
-    for s, p in zip(sentences, puncts):
-        sent = s.strip()
-        pun = p.strip()
-        cleaned_sentences.append(sent.capitalize() + pun)
-    return cleaned_sentences
+    if len(split) > 1:
+        puncts = split[1::2]
+        sentences = split[::2]
+        for s, p in zip(sentences, puncts):
+            sent = s.strip()
+            pun = p.strip()
+            cleaned_sentences.append(sent.capitalize() + pun)
+        return cleaned_sentences
+    else:
+        return [s.capitalize() for s in split]
