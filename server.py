@@ -31,7 +31,7 @@ def process_mesage():
         tip_amount = tip.tip_amount(user_response)
         s_api.post_message(user_id, "$[{0}]({1})".format("Confirm Tip", tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
-        return
+        return "OK"
 
     if advent.user_exists(user_id):
         logging.debug("PROCESSING RESPONSE FOR={}".format(user_id))
