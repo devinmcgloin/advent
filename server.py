@@ -28,7 +28,10 @@ def process_mesage():
         logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
         return
 
+    logging.debug("user_id={0}, user_response={1}".format(user_id, user_response))
+
     if tip.is_tip(user_response.lower()):
+        logging.debug("TIP TEXT={}".format(user_response))
         tip_amount = tip.tip_amount(user_response)
         s_api.post_message(user_id, "$[{0}]({1})".format("Confirm Tip", tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
