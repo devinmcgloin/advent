@@ -129,7 +129,7 @@ class Game(Data):
 
         self.chest_room = self.rooms[114]
         self.bottle.contents = self.water
-        self.yesno(self.messages[65], self.start2)  # want instructions?
+        self.yesno(self.messages[65], "start2")  # want instructions?
 
     def start2(self, yes):
         """Display instructions if the user wants them."""
@@ -439,9 +439,8 @@ class Game(Data):
                     self.write('Please answer the question.')
                     return
             else:
-                
+                self.call_callback(self.yesno_callback, answer)
                 self.yesno_callback = None
-                self.call_callback(self.yesno_callback,answer)
                 return
 
         if self.is_dead:
@@ -1646,7 +1645,7 @@ class Game(Data):
                        'would be a neat trick!\n\nCongratulations!!\n')
         self.is_done = True
 
-    def finish_turn_callback(self,yes):
+    def finish_turn_callback(self, yes):
         if yes:
             self.write(hint.message)
             hint.used = True
@@ -1654,7 +1653,7 @@ class Game(Data):
             self.write_message(54)
 
 
-    def die_callback(self,yes):
+    def die_callback(self, yes):
         if yes:
             self.write_message(80 + self.deaths * 2)
             if self.deaths < self.max_deaths:
@@ -1674,7 +1673,7 @@ class Game(Data):
             self.write_message(54)
         self.score_and_exit()
 
-    def t_attack_callback(self,yes):
+    def t_attack_callback(self, yes):
         self.write(obj.messages[1])
         obj.prop = 2
         obj.is_fixed = True
@@ -1690,17 +1689,17 @@ class Game(Data):
                 o.drop(newroom)
         self.move_to(newroom)
 
-    def i_quit_callback(self,yes):
+    def i_quit_callback(self, yes):
         self.write_message(54)
         if yes:
             self.score_and_exit()
 
-    def i_score_callback(self,yes):
+    def i_score_callback(self, yes):
         self.write_message(54)
         if yes:
             self.score_and_exit()
 
-    def t_read_callback(self,yes):
+    def t_read_callback(self, yes):
         if yes:
             self.hints[2].used = True
             self.write_message(193)
@@ -1708,7 +1707,7 @@ class Game(Data):
             self.write_message(54)
 
     def call_callback(self, callback_id, answer):
-        if "finish_turn_callback":
+        if "finish_turn_callback" == callback_id:
             self.finish_turn_callback(answer)
         elif "die_callback" == callback_id:
             self.die_callback(answer)
@@ -1718,3 +1717,5 @@ class Game(Data):
             self.i_quit_callback(answer)
         elif "t_read_callback" == callback_id:
             self.t_read_callback(answer)
+        elif "start2" == callback_id:
+            self.start2(answer)
