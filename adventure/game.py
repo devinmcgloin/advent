@@ -129,7 +129,7 @@ class Game(Data):
 
         self.chest_room = self.rooms[114]
         self.bottle.contents = self.water
-        self.yesno(self.messages[65], "start2")  # want instructions?
+        self.yesno(self.messages[65], {"name":"start2"})  # want instructions?
 
     def start2(self, yes):
         """Display instructions if the user wants them."""
@@ -404,7 +404,7 @@ class Game(Data):
                         hint.turn_counter = 0
                     if self.should_offer_hint(hint, obj):
                         hint.turn_counter = 0
-                        self.yesno(hint.question, "finish_turn_callback")
+                        self.yesno(hint.question, {"name":"finish_turn_callback", "hint":hint})
                         return
             else:
                 hint.turn_counter = 0
@@ -775,7 +775,7 @@ class Game(Data):
             self.write_message(131)
             self.score_and_exit()
             return
-        self.yesno(self.messages[79 + self.deaths * 2], "die_callback")
+        self.yesno(self.messages[79 + self.deaths * 2], {"name":"die_callback"})
 
     # Verbs.
 
@@ -1112,7 +1112,7 @@ class Game(Data):
             if self.dragon.prop != 0:
                 self.write_message(167)
             else:
-                self.yesno(self.messages[49], "t_attack_callback", casual=True)
+                self.yesno(self.messages[49], {"name":"t_attack_callback", "obj":obj}, casual=True)
                 return
         elif obj is self.troll:
             self.write_message(157)
@@ -1264,7 +1264,7 @@ class Game(Data):
 
     def i_quit(self, verb):  #8180
 
-        self.yesno(self.messages[22], "i_quit_callback")
+        self.yesno(self.messages[22], {"name":"i_quit_callback"})
 
     def t_find(self, verb, obj):  #9190
         if obj.is_toting:
@@ -1393,7 +1393,7 @@ class Game(Data):
         score, max_score = self.compute_score(for_score_command=True)
         self.write('If you were to quit now, you would score {}'
                    ' out of a possible {}.\n'.format(score, max_score))
-        self.yesno(self.messages[143], "i_score_callback")
+        self.yesno(self.messages[143],{"name":"i_score_callback"})
 
     def i_fee(self, verb):  #8250
         for n in range(5):
@@ -1447,7 +1447,7 @@ class Game(Data):
             return self.i_see_no(obj.names[0])
         elif (obj is self.oyster and not self.hints[2].used and
               self.oyster.is_toting):
-            self.yesno(self.messages[192], "t_read_callback")
+            self.yesno(self.messages[192], {"name":"t_read_callback"})
         elif obj is self.oyster and self.hints[2].used:
             self.write_message(194)
         elif obj is self.message:
@@ -1645,7 +1645,7 @@ class Game(Data):
                        'would be a neat trick!\n\nCongratulations!!\n')
         self.is_done = True
 
-    def finish_turn_callback(self, yes):
+    def finish_turn_callback(self, yes, hint):
         if yes:
             self.write(hint.message)
             hint.used = True
@@ -1673,7 +1673,7 @@ class Game(Data):
             self.write_message(54)
         self.score_and_exit()
 
-    def t_attack_callback(self, yes):
+    def t_attack_callback(self, yes, obj):
         self.write(obj.messages[1])
         obj.prop = 2
         obj.is_fixed = True
@@ -1706,13 +1706,14 @@ class Game(Data):
         else:
             self.write_message(54)
 
-    def call_callback(self, callback_id, answer):
+    def call_callback(self, callback, answer):
+        callback_id = callback["name"]
         if "finish_turn_callback" == callback_id:
-            self.finish_turn_callback(answer)
+            self.finish_turn_callback(answer, callback["hint"])
         elif "die_callback" == callback_id:
             self.die_callback(answer)
         elif "t_attack_callback" == callback_id:
-            self.t_attack_callback(answer)
+            self.t_attack_callback(answer, callback["obj"])
         elif "i_quit_callback" == callback_id:
             self.i_quit_callback(answer)
         elif "t_read_callback" == callback_id:
