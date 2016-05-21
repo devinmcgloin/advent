@@ -45,7 +45,7 @@ class Game(Data):
         Data.__init__(self)
         self.output = ''
         self.yesno_callback = False
-        self.yesno_casual = False       # whether to insist they answer
+        self.yesno_casual = False       # Whether to insist they answer
 
         self.clock1 = 30                # counts down from finding last treasure
         self.clock2 = 50                # counts down until cave closes
@@ -433,6 +433,7 @@ class Game(Data):
 
     def _do_command(self, words):
         if self.yesno_callback is not None:
+            logging.debug("_do_command callback={}".format(self.yesno_callback))
             answer = YESNO_ANSWERS.get(words[0], None)
             if answer is None:
                 if self.yesno_casual:
