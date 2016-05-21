@@ -18,7 +18,7 @@ r = redis.from_url(os.environ.get("REDIS_URL"))
 capitalize = ["don", "woods", "i", "willie", "crowther.", "devin", "mcgloin"]
 
 def user_exists(user_id):
-    return r.exists(user_id)
+    return r.exists("save:" + user_id)
 
 def new_game(user_id, seed=None):
     """Create new game"""
