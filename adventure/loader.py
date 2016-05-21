@@ -13,8 +13,8 @@ from .data import parse
 import redis
 import logging
 
-r = redis.from_url(os.environ.get("REDIS_URL"))
-#r = redis.Redis(host='localhost', port=6379)
+#r = redis.from_url(os.environ.get("REDIS_URL"))
+r = redis.Redis(host='localhost', port=6379)
 
 def user_exists(user_id):
     return r.exists(user_id)
