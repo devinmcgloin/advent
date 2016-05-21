@@ -17,6 +17,7 @@ import zlib
 from operator import attrgetter
 from .data import Data
 from .model import Room, Message, Dwarf, Pirate
+import logging
 
 YESNO_ANSWERS = {'y': True, 'yes': True, 'n': False, 'no': False}
 
@@ -1707,6 +1708,7 @@ class Game(Data):
             self.write_message(54)
 
     def call_callback(self, callback, answer):
+        logging.debug(callback)
         callback_id = callback["name"]
         if "finish_turn_callback" == callback_id:
             self.finish_turn_callback(answer, callback["hint"])
