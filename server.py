@@ -40,6 +40,9 @@ def process_mesage():
         logging.debug("CREATING NEW USER={}".format(user_id))
         response = advent.new_game(user_id)
 
+    r.lpush("conv:" + user_id, user_reponse)
+    r.lpush("conv:" + user_id, response)
+
     logging.debug("user={0} game reply={1}".format(user_id,response))
     s_api.post_message(user_id, response, True)
     return "OK"
