@@ -3,6 +3,7 @@ import sys
 
 import redis
 from rq import Worker, Queue, Connection
+from pysmooch.smooch import Smooch
 
 import logging
 import json
