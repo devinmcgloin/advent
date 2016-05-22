@@ -30,6 +30,7 @@ if __name__ == '__main__':
         worker.work()
 
 def respond(pq):
+    logging.info("respond called")
     while pq.length() > 0:
         if pq.priority() < time.time():
             task = pq.pop_task()

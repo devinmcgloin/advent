@@ -72,6 +72,8 @@ def process_mesage():
 
     q.enqueue_call(func=respond, args=(pq,))
 
+    pq = PriorityQueue()
+
     logging.debug("JOB SENT")
 
     return "OK"
