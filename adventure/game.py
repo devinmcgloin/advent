@@ -10,19 +10,19 @@ Apache License, Version 2.0 as detailed in the accompanying README.txt.
 # FORTRAN using Emacs with an interactive search for newline-2012-tab,
 # that is typed C-s C-q C-j 2 0 1 2 C-i).
 
-import os
+import logging
 import pickle
 import random
 import zlib
 from operator import attrgetter
+
 from .data import Data
 from .model import Room, Message, Dwarf, Pirate
-import logging
 
 YESNO_ANSWERS = {'y': True, 'yes': True, 'n': False, 'no': False}
 
-class Game(Data):
 
+class Game(Data):
     look_complaints = 3  # how many times to "SORRY, BUT I AM NOT ALLOWED..."
     full_description_period = 5  # how often we use a room's full description
     full_wests = 0  # how many times they have typed "west" instead of "w"
@@ -45,14 +45,14 @@ class Game(Data):
         Data.__init__(self)
         self.output = ''
         self.yesno_callback = False
-        self.yesno_casual = False       # Whether to insist they answer
+        self.yesno_casual = False  # Whether to insist they answer
 
-        self.clock1 = 30                # counts down from finding last treasure
-        self.clock2 = 50                # counts down until cave closes
-        self.is_closing = False         # is the cave closing?
-        self.panic = False              # they tried to leave during closing?
-        self.is_closed = False          # is the cave closed?
-        self.is_done = False            # caller can check for "game over"
+        self.clock1 = 30  # counts down from finding last treasure
+        self.clock2 = 50  # counts down until cave closes
+        self.is_closing = False  # is the cave closing?
+        self.panic = False  # they tried to leave during closing?
+        self.is_closed = False  # is the cave closed?
+        self.is_done = False  # caller can check for "game over"
         self.could_fall_in_pit = False  # could the player fall into a pit?
 
         self.random_generator = random.Random()
@@ -92,18 +92,18 @@ class Game(Data):
 
     @property
     def inventory(self):
-        return [ obj for obj in self.object_list if obj.is_toting ]
+        return [obj for obj in self.object_list if obj.is_toting]
 
     @property
     def treasures(self):
-        return [ obj for obj in self.object_list if obj.is_treasure ]
+        return [obj for obj in self.object_list if obj.is_treasure]
 
     @property
     def objects_here(self):
         return self.objects_at(self.loc)
 
     def objects_at(self, room):
-        return [ obj for obj in self.object_list if room in obj.rooms ]
+        return [obj for obj in self.object_list if room in obj.rooms]
 
     def is_here(self, obj):
         if isinstance(obj, Dwarf):
@@ -141,7 +141,7 @@ class Game(Data):
             self.lamp_turns = 1000
 
         self.oldloc2 = self.oldloc = self.loc = self.rooms[1]
-        self.dwarves = [ Dwarf(self.rooms[n]) for n in (19, 27, 33, 44, 64) ]
+        self.dwarves = [Dwarf(self.rooms[n]) for n in (19, 27, 33, 44, 64)]
         self.pirate = Pirate(self.chest_room)
 
         treasures = self.treasures
@@ -156,7 +156,7 @@ class Game(Data):
     # we place here at the top of `game.py` to mirror the order in the
     # advent.for file.
 
-    def move_to(self, newloc=None):  #2
+    def move_to(self, newloc=None):  # 2
         loc = self.loc
         if newloc is None:
             newloc = loc
@@ -174,13 +174,13 @@ class Game(Data):
         dwarf_blocking_the_way = any(
             dwarf.old_room is newloc and dwarf.has_seen_adventurer
             for dwarf in self.dwarves
-            )
+        )
 
         if not must_allow_move and dwarf_blocking_the_way:
             newloc = loc  # cancel move they were going to make
             self.write_message(2)  # dwarf is blocking the way
 
-        self.loc = loc = newloc  #74
+        self.loc = loc = newloc  # 74
 
         # IF LOC.EQ.0 ?
         is_dwarf_area = not (loc.is_forced or loc.is_forbidden_to_pirate)
@@ -193,7 +193,7 @@ class Game(Data):
 
     def move_dwarves(self):
 
-        #6000
+        # 6000
         if self.dwarf_stage == 1:
 
             # 5% chance per turn of meeting first dwarf
@@ -212,15 +212,15 @@ class Game(Data):
             self.describe_location()
             return
 
-        #6010
+        # 6010
         dwarf_count = dwarf_attacks = knife_wounds = 0
 
-        for dwarf in self.dwarves + [ self.pirate ]:
+        for dwarf in self.dwarves + [self.pirate]:
 
-            locations = { move.action for move in dwarf.room.travel_table 
-                          if dwarf.can_move(move)
-                          and move.action is not dwarf.old_room
-                          and move.action is not dwarf.room }
+            locations = {move.action for move in dwarf.room.travel_table
+                         if dwarf.can_move(move)
+                         and move.action is not dwarf.old_room
+                         and move.action is not dwarf.room}
             # Without stabilizing the order with a sort, the room chosen
             # would depend on how the Room addresses in memory happen to
             # order the rooms in the set() - and make it impossible to
@@ -257,18 +257,18 @@ class Game(Data):
                 if self.loc is self.chest_room or self.chest.prop >= 0:
                     continue  # decide that the pirate is not really here
 
-                treasures = [ t for t in self.treasures if t.is_toting ]
+                treasures = [t for t in self.treasures if t.is_toting]
                 if (self.platinum in treasures and self.loc.n in (100, 101)):
                     treasures.remove(self.platinum)
 
                 if not treasures:
-                    h = any( t for t in self.treasures if self.is_here(t) )
+                    h = any(t for t in self.treasures if self.is_here(t))
                     one_treasure_left = (self.treasures_not_found ==
                                          self.impossible_treasures + 1)
                     shiver_me_timbers = (
-                        one_treasure_left and not h and not(self.chest.rooms)
+                        one_treasure_left and not h and not (self.chest.rooms)
                         and self.is_here(self.lamp) and self.lamp.prop == 1
-                        )
+                    )
 
                     if not shiver_me_timbers:
                         if (pirate.old_room != pirate.room
@@ -281,7 +281,7 @@ class Game(Data):
                     self.message.drop(self.rooms[140])
 
                 else:
-                    #6022  I'll just take all this booty
+                    # 6022  I'll just take all this booty
                     self.write_message(128)
                     if not self.message.rooms:
                         self.chest.drop(self.chest_room)
@@ -289,7 +289,7 @@ class Game(Data):
                     for treasure in treasures:
                         treasure.drop(self.chest_room)
 
-                #6024
+                # 6024
                 pirate.old_room = pirate.room = self.chest_room
                 pirate.has_seen_adventurer = False  # free to move
 
@@ -326,7 +326,7 @@ class Game(Data):
 
         self.describe_location()
 
-    def describe_location(self):  #2000
+    def describe_location(self):  # 2000
 
         logging.debug("self={}".format(self))
         loc = self.loc
@@ -372,7 +372,7 @@ class Game(Data):
                     obj.prop = 1 if obj in (self.rug, self.chain) else 0
                     self.treasures_not_found -= 1
                     if (self.treasures_not_found > 0 and
-                        self.treasures_not_found == self.impossible_treasures):
+                                self.treasures_not_found == self.impossible_treasures):
                         self.lamp_turns = min(35, self.lamp_turns)
 
                 if obj is self.steps and self.loc is self.steps.rooms[1]:
@@ -386,15 +386,15 @@ class Game(Data):
 
         self.finish_turn()
 
-    def say_okay_and_finish(self, *ignored):  #2009
+    def say_okay_and_finish(self, *ignored):  # 2009
         self.write_message(54)
         self.finish_turn()
 
-    #2009 sets SPK="OK" then...
-    #2010 sets SPK to K
-    #2011 speaks SPK then...
-    #2012 blanks VERB and OBJ and calls:
-    def finish_turn(self, obj=None):  #2600
+    # 2009 sets SPK="OK" then...
+    # 2010 sets SPK to K
+    # 2011 speaks SPK then...
+    # 2012 blanks VERB and OBJ and calls:
+    def finish_turn(self, obj=None):  # 2600
 
         # Advance random number generator so each input affects future.
         self.random()
@@ -422,7 +422,7 @@ class Game(Data):
                 if obj.prop < 0:
                     obj.prop = - 1 - obj.prop
 
-        self.could_fall_in_pit = self.is_dark  #2605
+        self.could_fall_in_pit = self.is_dark  # 2605
         if self.knife_location and self.knife_location is not self.loc:
             self.knife_location = None
 
@@ -454,7 +454,7 @@ class Game(Data):
             self.write('You have gotten yourself killed.')
             return
 
-        #2608
+        # 2608
         self.turns += 1
         if (self.treasures_not_found == 0
             and self.loc.n >= 15 and self.loc.n != 33):
@@ -471,7 +471,7 @@ class Game(Data):
 
         if self.lamp_turns <= 30 and self.is_here(self.batteries) \
                 and self.batteries.prop == 0 and self.is_here(self.lamp):
-            #12000
+            # 12000
             self.write_message(188)
             self.batteries.prop = 1
             if self.batteries.is_toting:
@@ -479,20 +479,20 @@ class Game(Data):
             self.lamp_turns += 2500
             self.warned_about_dim_lamp = False
         elif self.lamp_turns == 0:
-            #12400
+            # 12400
             self.lamp_turns = -1
             self.lamp.prop = 0
             if self.is_here(self.lamp):
                 self.write_message(184)
         elif self.lamp_turns < 0 and self.loc.is_aboveground:
-            #12600
+            # 12600
             self.write_message(185)
             self.gave_up = True
             self.score_and_exit()
             return
         elif self.lamp_turns <= 30 and not self.warned_about_dim_lamp \
                 and self.is_here(self.lamp):
-            #12200
+            # 12200
             self.warned_about_dim_lamp = True
             if self.batteries.prop == 1:
                 self.write_message(189)
@@ -503,18 +503,18 @@ class Game(Data):
 
         self.dispatch_command(words)
 
-    def dispatch_command(self, words):  #19999
+    def dispatch_command(self, words):  # 19999
 
         if not 1 <= len(words) <= 2:
             return self.dont_understand()
 
-        #if words[0] == 'save' and len(words) > 1:
+            # if words[0] == 'save' and len(words) > 1:
             # Handle suspend separately, since filename can be anything,
             # and is not restricted to being a vocabulary word (and, in
             # fact, it can be an open file).
-            #return self.t_suspend(words[0], words[1])
+            # return self.t_suspend(words[0], words[1])
 
-        words = [ self.vocabulary.get(word) for word in words ]
+        words = [self.vocabulary.get(word) for word in words]
         if None in words:
             return self.dont_understand()
 
@@ -529,12 +529,12 @@ class Game(Data):
             return self.finish_turn()
 
         if (word1 == 'enter' or word1 == 'walk') and word2:
-            #2800  'enter house' becomes simply 'house' and so forth
+            # 2800  'enter house' becomes simply 'house' and so forth
             word1, word2 = word2, None
 
         if ((word1 == 'water' or word1 == 'oil') and
-            (word2 == 'plant' or word2 == 'door') and
-            self.is_here(self.referent(word2))):
+                (word2 == 'plant' or word2 == 'door') and
+                self.is_here(self.referent(word2))):
             word1, word2 = self.vocabulary['pour'], word1
 
         if word1 == 'say':
@@ -542,9 +542,9 @@ class Game(Data):
 
         kinds = (word1.kind, word2.kind if word2 else None)
 
-        #2630
+        # 2630
         if kinds == ('travel', None):
-            if word1.text == 'west':  #2610
+            if word1.text == 'west':  # 2610
                 self.full_wests += 1
                 if self.full_wests == 10:
                     self.write_message(17)
@@ -573,11 +573,11 @@ class Game(Data):
             if not obj_here:
                 if obj is self.grate:
                     if self.loc.n in (1, 4, 7):
-                        return self.dispatch_command([ 'depression' ])
+                        return self.dispatch_command(['depression'])
                     elif 9 < self.loc.n < 15:
-                        return self.dispatch_command([ 'entrance' ])
+                        return self.dispatch_command(['entrance'])
                 elif noun == 'dwarf':
-                    obj_here = any( d.room is self.loc for d in self.dwarves )
+                    obj_here = any(d.room is self.loc for d in self.dwarves)
                 elif obj is self.bottle.contents and self.is_here(self.bottle):
                     obj_here = True
                 elif obj is self.loc.liquid:
@@ -601,7 +601,7 @@ class Game(Data):
 
             if not verb:
                 self.write('What do you want to do with the {}?\n'.format(
-                        noun.text))
+                    noun.text))
                 return self.finish_turn()
 
         verb_name = verb.synonyms[0].text
@@ -615,9 +615,9 @@ class Game(Data):
         method(*args)
 
     def dont_understand(self):
-        #3000  (a bit earlier than in the Fortran code)
+        # 3000  (a bit earlier than in the Fortran code)
         n = self.random()
-        if n < 0.20:    # 20% of the entire 1.0 range of random()
+        if n < 0.20:  # 20% of the entire 1.0 range of random()
             self.write_message(61)
         elif n < 0.36:  # 20% of the remaining 0.8 left
             self.write_message(13)
@@ -631,13 +631,13 @@ class Game(Data):
 
     # Motion.
 
-    def do_motion(self, word):  #8
+    def do_motion(self, word):  # 8
 
-        if word == 'null': #2
+        if word == 'null':  # 2
             self.move_to()
             return
 
-        elif word == 'back':  #20
+        elif word == 'back':  # 20
             dest = self.oldloc2 if self.oldloc.is_forced else self.oldloc
             self.oldloc2, self.oldloc = self.oldloc, self.loc
             if dest is self.loc:
@@ -648,7 +648,7 @@ class Game(Data):
             for move in self.loc.travel_table:
                 if move.action is dest:
                     word = move.verbs[0]  # arbitrary verb going to `dest`
-                    break # Fall through, to attempt the move.
+                    break  # Fall through, to attempt the move.
                 elif (isinstance(move.action, Room)
                       and move.action.is_forced
                       and move.action.travel_table[0].action is dest):
@@ -661,7 +661,7 @@ class Game(Data):
                     self.move_to()
                     return
 
-        elif word == 'look':  #30
+        elif word == 'look':  # 30
             if self.look_complaints > 0:
                 self.write_message(15)
                 self.look_complaints -= 1
@@ -670,7 +670,7 @@ class Game(Data):
             self.could_fall_in_pit = False
             return
 
-        elif word == 'cave':  #40
+        elif word == 'cave':  # 40
             self.write_message(57 if self.loc.is_aboveground else 58)
             self.move_to()
             return
@@ -704,9 +704,9 @@ class Game(Data):
                     self.move_to()
                     return
 
-                elif move.action == 301:  #30100
+                elif move.action == 301:  # 30100
                     inv = self.inventory
-                    if len(inv) != 0 and inv != [ self.emerald ]:
+                    if len(inv) != 0 and inv != [self.emerald]:
                         self.write_message(117)
                         self.move_to()
                     elif self.loc.n == 100:
@@ -715,12 +715,12 @@ class Game(Data):
                         self.move_to(self.rooms[100])
                     return
 
-                elif move.action == 302:  #30200
+                elif move.action == 302:  # 30200
                     self.emerald.drop(self.loc)
                     self.do_motion(word)
                     return
 
-                elif move.action == 303:  #30300
+                elif move.action == 303:  # 30300
                     troll, troll2 = self.troll, self.troll2
                     if troll.prop == 1:
                         self.write(troll.messages[1])
@@ -750,7 +750,7 @@ class Game(Data):
                         self.die()
                         return
 
-        #50
+        # 50
         n = word.n
         if 29 <= n <= 30 or 43 <= n <= 50:
             self.write_message(9)
@@ -769,12 +769,12 @@ class Game(Data):
 
     # Death and reincarnation.
 
-    def die_here(self):  #90
+    def die_here(self):  # 90
         self.write_message(23)
         self.oldloc2 = self.loc
         self.die()
 
-    def die(self):  #99
+    def die(self):  # 99
         self.deaths += 1
         self.is_dead = True
 
@@ -786,7 +786,7 @@ class Game(Data):
 
     # Verbs.
 
-    def ask_verb_what(self, verb, *args):  #8000
+    def ask_verb_what(self, verb, *args):  # 8000
         self.write('{} What?\n'.format(verb.text))
         self.finish_turn()
 
@@ -815,15 +815,15 @@ class Game(Data):
     t_brief = write_default_message
     t_hours = write_default_message
 
-    def i_carry(self, verb):  #8010
-        is_dwarf_here = any( dwarf.room == self.loc for dwarf in self.dwarves )
+    def i_carry(self, verb):  # 8010
+        is_dwarf_here = any(dwarf.room == self.loc for dwarf in self.dwarves)
         objs = self.objects_here
         if len(objs) != 1 or is_dwarf_here:
             self.ask_verb_what(verb)
         else:
             self.t_carry(verb, objs[0])
 
-    def t_carry(self, verb, obj):  #9010
+    def t_carry(self, verb, obj):  # 9010
         if obj.is_toting:
             self.write(verb.default_message)
             self.finish_turn()
@@ -877,7 +877,7 @@ class Game(Data):
                 self.bottle.contents.carry()
         self.say_okay_and_finish()
 
-    def t_drop(self, verb, obj):  #9020
+    def t_drop(self, verb, obj):  # 9020
         if obj is self.rod and not self.rod.is_toting and self.rod2.is_toting:
             obj = self.rod2
 
@@ -887,7 +887,7 @@ class Game(Data):
             return
 
         bird, snake, dragon, bear, troll = self.bird, self.snake, self.dragon, \
-            self.bear, self.troll
+                                           self.bear, self.troll
 
         if obj is bird and self.is_here(snake):
             self.write_message(30)
@@ -930,7 +930,7 @@ class Game(Data):
         else:
             self.write_message(54)
 
-        #9021
+        # 9021
         if obj is self.bottle.contents:
             obj = self.bottle
         if obj is self.bottle and self.bottle.contents:
@@ -943,14 +943,14 @@ class Game(Data):
         self.finish_turn()
         return
 
-    def t_say(self, verb, word):  #9030
+    def t_say(self, verb, word):  # 9030
         if word.n in (62, 65, 71, 2025):
-            self.dispatch_command([ word.text ])
+            self.dispatch_command([word.text])
         else:
             self.write('Okay, "{}".'.format(word.text))
             self.finish_turn()
 
-    def i_unlock(self, verb):  #8040  Handles "unlock" case as well
+    def i_unlock(self, verb):  # 8040  Handles "unlock" case as well
         objs = (self.grate, self.door, self.oyster, self.clam, self.chain)
         objs = list(filter(self.is_here, objs))
         if len(objs) > 1:
@@ -963,9 +963,9 @@ class Game(Data):
 
     i_lock = i_unlock
 
-    def t_unlock(self, verb, obj):  #9040  Handles "lock" case as well
+    def t_unlock(self, verb, obj):  # 9040  Handles "lock" case as well
         if obj is self.clam or obj is self.oyster:
-            #9046
+            # 9046
             oy = 1 if (obj is self.oyster) else 0
             if verb == 'lock':
                 self.write_message(61)
@@ -993,7 +993,7 @@ class Game(Data):
             if not self.is_here(self.keys):
                 self.write_message(31)
             elif obj is self.chain:
-                #9048
+                # 9048
                 if verb == 'unlock':
                     if self.chain.prop == 0:
                         self.write_message(37)
@@ -1007,7 +1007,7 @@ class Game(Data):
                         self.bear.is_fixed = 2 - self.bear.prop
                         self.write_message(171)
                 else:
-                    #9049
+                    # 9049
                     if self.loc not in self.chain.starting_rooms:
                         self.write_message(173)
                     elif self.chain.prop != 0:
@@ -1024,7 +1024,7 @@ class Game(Data):
                     self.panic = True
                 self.write_message(130)
             else:
-                #9043
+                # 9043
                 oldprop = obj.prop
                 obj.prop = 0 if verb == 'lock' else 1
                 self.write_message(34 + oldprop + 2 * obj.prop)
@@ -1034,7 +1034,7 @@ class Game(Data):
 
     t_lock = t_unlock
 
-    def t_light(self, verb, obj=None):  #9070
+    def t_light(self, verb, obj=None):  # 9070
         if not self.is_here(self.lamp):
             self.write(verb.default_message)
         elif self.lamp_turns <= 0:
@@ -1048,7 +1048,7 @@ class Game(Data):
 
     i_light = t_light
 
-    def t_extinguish(self, verb, obj=None):  #9080
+    def t_extinguish(self, verb, obj=None):  # 9080
         if not self.is_here(self.lamp):
             self.write(verb.default_message)
         else:
@@ -1060,7 +1060,7 @@ class Game(Data):
 
     i_extinguish = t_extinguish
 
-    def t_wave(self, verb, obj):  #9090
+    def t_wave(self, verb, obj):  # 9090
         fissure = self.fissure
 
         if (obj is self.rod and obj.is_toting and self.is_here(fissure)
@@ -1075,8 +1075,8 @@ class Game(Data):
 
         self.finish_turn()
 
-    def i_attack(self, verb):  #9120
-        enemies = [ self.snake, self.dragon, self.troll, self.bear ]
+    def i_attack(self, verb):  # 9120
+        enemies = [self.snake, self.dragon, self.troll, self.bear]
         if self.dwarf_stage >= 2:
             enemies.extend(self.dwarves)
         dangers = list(filter(self.is_here, enemies))
@@ -1096,7 +1096,7 @@ class Game(Data):
         else:
             return self.t_attack(verb, None)
 
-    def t_attack(self, verb, obj):  #9124  (but control goes to 9120 first)
+    def t_attack(self, verb, obj):  # 9124  (but control goes to 9120 first)
         if obj is self.bird:
             if self.is_closed:
                 self.write_message(137)
@@ -1129,7 +1129,7 @@ class Game(Data):
             self.write_message(44)
         self.finish_turn()
 
-    def i_pour(self, verb):  #9130
+    def i_pour(self, verb):  # 9130
         if self.bottle.contents is None:
             self.ask_verb_what(verb)
         else:
@@ -1155,22 +1155,22 @@ class Game(Data):
                     self.plant2.prop = self.plant.prop // 2
                     return self.move_to()
             elif self.is_here(self.door):
-                #9132
+                # 9132
                 self.door.prop = 1 if obj is self.oil else 0
                 self.write_message(113 + self.door.prop)
             else:
                 self.write_message(77)
         return self.finish_turn()
 
-    def i_eat(self, verb):  #8140
+    def i_eat(self, verb):  # 8140
         if self.is_here(self.food):
             self.t_eat(verb, self.food)
         else:
             self.ask_verb_what(verb)
 
-    def t_eat(self, verb, obj):  #9140
+    def t_eat(self, verb, obj):  # 9140
         if obj is self.food:
-            #8142
+            # 8142
             self.food.destroy()
             self.write_message(72)
         elif obj in (self.bird, self.snake, self.clam, self.oyster,
@@ -1180,13 +1180,13 @@ class Game(Data):
             self.write(verb.default_message)
         self.finish_turn()
 
-    def i_drink(self, verb):  #9150
+    def i_drink(self, verb):  # 9150
         if self.is_here(self.water) or self.loc.liquid is self.water:
             self.t_drink(verb, self.water)
         else:
             self.ask_verb_what(verb)
 
-    def t_drink(self, verb, obj):  #9150
+    def t_drink(self, verb, obj):  # 9150
         if obj is not self.water:
             self.write_message(110)
         elif self.is_here(self.water):
@@ -1198,14 +1198,14 @@ class Game(Data):
             self.write(verb.default_message)
         self.finish_turn()
 
-    def t_rub(self, verb, obj):  #9160
+    def t_rub(self, verb, obj):  # 9160
         if obj is self.lamp:
             self.write(verb.default_message)
         else:
             self.write_message(71)
         self.finish_turn()
 
-    def t_throw(self, verb, obj):  #9170
+    def t_throw(self, verb, obj):  # 9170
         if obj is self.rod and not self.rod.is_toting and self.rod2.is_toting:
             obj = self.rod2
 
@@ -1231,7 +1231,7 @@ class Game(Data):
             self.t_drop(verb, obj)
             return
 
-        dwarves_here = [ d for d in self.dwarves if d.room is self.loc ]
+        dwarves_here = [d for d in self.dwarves if d.room is self.loc]
         if dwarves_here:
             # 1/3rd chance that throwing the axe kills a dwarf
             if self.choice((True, False, False)):
@@ -1269,18 +1269,18 @@ class Game(Data):
 
         self.t_attack(verb, None)
 
-    def i_quit(self, verb):  #8180
+    def i_quit(self, verb):  # 8180
 
         self.yesno(self.messages[22], callback_id="i_quit_callback")
 
-    def t_find(self, verb, obj):  #9190
+    def t_find(self, verb, obj):  # 9190
         if obj.is_toting:
             self.write_message(24)
         elif self.is_closed:
             self.write_message(138)
         elif (self.is_here(obj) or
-            obj is self.loc.liquid or
-            obj is self.dwarf and any(d.room is self.loc for d in self.dwarves)):
+                      obj is self.loc.liquid or
+                          obj is self.dwarf and any(d.room is self.loc for d in self.dwarves)):
             self.write_message(94)
         else:
             self.write(verb.default_message)
@@ -1288,9 +1288,9 @@ class Game(Data):
 
     t_inventory = t_find
 
-    def i_inventory(self, verb):  #8200
+    def i_inventory(self, verb):  # 8200
         first = True
-        objs = [ obj for obj in self.inventory if obj is not self.bear ]
+        objs = [obj for obj in self.inventory if obj is not self.bear]
         for obj in objs:
             if first:
                 self.write_message(99)
@@ -1302,7 +1302,7 @@ class Game(Data):
             self.write_message(98)
         self.finish_turn()
 
-    def t_feed(self, verb, obj):  #9210
+    def t_feed(self, verb, obj):  # 9210
         if obj is self.bird:
             self.write_message(100)
         elif obj is self.troll:
@@ -1344,7 +1344,7 @@ class Game(Data):
             self.write_message(14)
         self.finish_turn()
 
-    def i_fill(self, verb):  #9220
+    def i_fill(self, verb):  # 9220
         if self.is_here(self.bottle):
             return self.t_fill(verb, self.bottle)
         self.ask_verb_what(verb)
@@ -1365,7 +1365,7 @@ class Game(Data):
                 else:
                     self.write_message(107)
         elif obj is self.vase:
-            #9222
+            # 9222
             if self.vase.is_toting:
                 if self.loc.liquid is None:
                     self.write_message(144)
@@ -1380,7 +1380,7 @@ class Game(Data):
             self.write(verb.default_message)
         self.finish_turn()
 
-    def t_blast(self, verb, obj=None):  #9230
+    def t_blast(self, verb, obj=None):  # 9230
         if self.rod2.prop < 0 or not self.is_closed:
             self.write(verb.default_message)
             self.finish_turn()
@@ -1396,13 +1396,13 @@ class Game(Data):
 
     i_blast = t_blast
 
-    def i_score(self, verb):  #8240
+    def i_score(self, verb):  # 8240
         score, max_score = self.compute_score(for_score_command=True)
         self.write('If you were to quit now, you would score {}'
                    ' out of a possible {}.\n'.format(score, max_score))
-        self.yesno(self.messages[143],callback_id="i_score_callback")
+        self.yesno(self.messages[143], callback_id="i_score_callback")
 
-    def i_fee(self, verb):  #8250
+    def i_fee(self, verb):  # 8250
         for n in range(5):
             if verb.synonyms[n].text == verb.text:
                 break  # so that 0=fee, 1=fie, 2=foe, 3=foo, 4=fum
@@ -1433,13 +1433,13 @@ class Game(Data):
                 eggs.is_toting = False
         self.finish_turn()
 
-    def i_brief(self, verb):  #8260
+    def i_brief(self, verb):  # 8260
         self.write_message(156)
         self.full_description_period = 10000
         self.look_complaints = 0
         self.finish_turn()
 
-    def i_read(self, verb):  #8270
+    def i_read(self, verb):  # 8270
         if self.is_closed and self.oyster.is_toting:
             return self.t_read(verb, self.oyster)
         objs = (self.magazine, self.tablet, self.message)
@@ -1449,11 +1449,11 @@ class Game(Data):
         else:
             self.t_read(verb, objs[0])
 
-    def t_read(self, verb, obj):  #9270
+    def t_read(self, verb, obj):  # 9270
         if self.is_dark:
             return self.i_see_no(obj.names[0])
         elif (obj is self.oyster and not self.hints[2].used and
-              self.oyster.is_toting):
+                  self.oyster.is_toting):
             self.yesno(self.messages[192], callback_id="t_read_callback")
         elif obj is self.oyster and self.hints[2].used:
             self.write_message(194)
@@ -1467,7 +1467,7 @@ class Game(Data):
             self.write(verb.default_message)
         self.finish_turn()
 
-    def t_break(self, verb, obj):  #9280
+    def t_break(self, verb, obj):  # 9280
         if obj is self.vase and self.vase.prop == 0:
             self.write_message(198)
             if self.vase.is_toting:
@@ -1484,7 +1484,7 @@ class Game(Data):
             self.write(verb.default_message)
         self.finish_turn()
 
-    def t_wake(self, verb, obj):  #9290
+    def t_wake(self, verb, obj):  # 9290
         if obj is self.dwarf and self.is_closed:
             self.write_message(199)
             self.wake_repository_dwarves()
@@ -1494,7 +1494,7 @@ class Game(Data):
 
     def i_suspend(self, verb):
         self.write('Provide "{}" with a filename or open file'.format(
-                verb.text))
+            verb.text))
         self.finish_turn()
 
     def t_suspend(self):
@@ -1519,7 +1519,7 @@ class Game(Data):
         del game.random_state
         return game
 
-    def should_offer_hint(self, hint, obj): #40000
+    def should_offer_hint(self, hint, obj):  # 40000
         if hint.n == 4:  # cave
             return self.grate.prop == 0 and not self.is_here(self.keys)
 
@@ -1542,7 +1542,7 @@ class Game(Data):
         elif hint.n == 9:  # witt
             return True
 
-    def start_closing_cave(self):  #10000
+    def start_closing_cave(self):  # 10000
         self.grate.prop = 0
         self.fissure.prop = 0
         del self.dwarves[:]
@@ -1557,7 +1557,7 @@ class Game(Data):
         self.clock1 = -1
         self.is_closing = True
 
-    def close_cave(self):  #11000
+    def close_cave(self):  # 11000
         ne = self.rooms[115]  # ne end of repository
         sw = self.rooms[116]
         for obj in (self.bottle, self.plant, self.oyster, self.lamp,
@@ -1582,11 +1582,11 @@ class Game(Data):
     # TODO: 12400
     # TODO: 12600
 
-    def wake_repository_dwarves(self):  #19000
+    def wake_repository_dwarves(self):  # 19000
         self.write_message(136)
         self.score_and_exit()
 
-    def compute_score(self, for_score_command=False):  #20000
+    def compute_score(self, for_score_command=False):  # 20000
         score = maxscore = 2
 
         for treasure in self.treasures:
@@ -1644,7 +1644,7 @@ class Game(Data):
                 break
         self.write('\n{}\n'.format(text))
         if i < len(self.class_messages) - 1:
-            d = self.class_messages[i+1][0] + 1 - score
+            d = self.class_messages[i + 1][0] + 1 - score
             self.write('To achieve the next higher rating, you need'
                        ' {} more point{}\n'.format(d, 's' if d > 1 else ''))
         else:
@@ -1658,7 +1658,6 @@ class Game(Data):
             hint.used = True
         else:
             self.write_message(54)
-
 
     def die_callback(self, yes):
         if yes:
@@ -1686,7 +1685,7 @@ class Game(Data):
         obj.is_fixed = True
         oldroom1 = obj.rooms[0]
         oldroom2 = obj.rooms[1]
-        newroom = self.rooms[ (oldroom1.n + oldroom2.n) // 2 ]
+        newroom = self.rooms[(oldroom1.n + oldroom2.n) // 2]
         obj.drop(newroom)
         self.rug.prop = 0
         self.rug.is_fixed = False
@@ -1697,13 +1696,18 @@ class Game(Data):
         self.move_to(newroom)
 
     def i_quit_callback(self, yes):
+        print("i quit called")
+
         self.write_message(54)
         if yes:
+            print("yes called in i quit callback")
             self.score_and_exit()
 
     def i_score_callback(self, yes):
+        print("i score called")
         self.write_message(54)
         if yes:
+            print("yes called in i score callback")
             self.score_and_exit()
 
     def t_read_callback(self, yes):
@@ -1728,3 +1732,5 @@ class Game(Data):
             self.t_read_callback(answer)
         elif "start2" == callback_id:
             self.start2(answer)
+        elif "i_score_callback" == callback_id:
+            self.i_score_callback(answer)

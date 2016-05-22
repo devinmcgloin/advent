@@ -58,7 +58,7 @@ def schedule_msg(response):
                 order.append((sentence, random.randrange(SUPER_FAST)))
                 next_fast = False
             elif len(sentence) > 140:
-                order.append((sentence, random.randrange(SLOW)))
+                order.append((sentence, random.randrange(NORMAL, SLOW)))
             elif re.search("(\?|\.)$", sentence):
                 order.append((sentence, random.randrange(NORMAL)))
             elif re.search("\!+$", sentence):
