@@ -15,7 +15,7 @@ import logging
 
 r = redis.from_url(os.environ.get("REDIS_URL"))
 
-capitalize = ["don", "woods", "i", "willie", "crowther.", "devin", "mcgloin"]
+capitalize = ["don", "woods", "i", "willie", "crowther.", "devin", "mcgloin", "i'll"]
 
 def user_exists(user_id):
     return r.exists("save:" + user_id)
@@ -77,7 +77,7 @@ def accum_words(response):
         for s, p in zip(sentences, puncts):
             sent = s.strip()
             pun = p.strip()
-            cleaned_sentences.append(sent.capitalize() + pun)
+            cleaned_sentences.append(first_upper(sent) + pun)
         return cleaned_sentences
     else:
         return [s.capitalize() for s in split]
