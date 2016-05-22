@@ -58,7 +58,7 @@ def process_mesage():
     elif user_response.lower() == "restart":
         r.set("restart:" + user_id, 1)
         s_api.post_message(user_id, "Are you sure you want to restart? This cannot be undone.", True)
-        return
+        return "OK"
     elif advent.user_exists(user_id):
         logging.info("PROCESSING RESPONSE FOR={}".format(user_id))
         response = advent.respond(user_id, user_response).strip()
