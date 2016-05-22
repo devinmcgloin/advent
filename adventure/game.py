@@ -328,6 +328,7 @@ class Game(Data):
 
     def describe_location(self):  #2000
 
+        logging.debug("self={}".format(self))
         loc = self.loc
 
         if loc.n == 0:
@@ -359,6 +360,7 @@ class Game(Data):
             self.write_message(8)
 
         if not self.is_dark:
+            logging.debug("objects_here={}".format(self.objects_here))
             for obj in self.objects_here:
 
                 if obj is self.steps and self.gold.is_toting:
@@ -377,6 +379,8 @@ class Game(Data):
                     prop = 1
                 else:
                     prop = obj.prop
+                logging.debug("obj={}".format(obj))
+                logging.debug("prop={}".format(prop))
 
                 self.write(obj.messages[prop])
 
