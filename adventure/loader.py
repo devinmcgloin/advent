@@ -38,11 +38,6 @@ def respond(user_id, user_response):
     r.set("save:" + user_id, game.t_suspend())
     return response
 
-def reset_game(user_id, seed=None):
-    """Clears the game for a specific user_id, need to wipe Memory and file game"""
-    logging.debug("deleting save for {}".format(user_id))
-    r.delete(user_id)
-
 def load_advent_dat(data):
     """Called for each came object"""
     datapath = os.path.join(os.path.dirname(__file__), 'advent.dat')

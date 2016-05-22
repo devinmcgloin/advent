@@ -40,11 +40,12 @@ def process_mesage():
     logging.info("user_id={0}, user_response={1}".format(user_id, user_response))
 
     if r.get("restart:" + user_id) == 1:
-        if re.search("^(yes|y)$", user_response.strip().lower()):
+        logging.debug("restart check for user={}".format(user_id))
+        if re.search(user_response.strip().lower(), "^(yes|y)$"):
             response = advent.new_game(user_id)
             s_api.post_message(user_id, response, True)
             r.set("restart:" + user_id, 0)
-        elif re.search("^(no|n)$", user_response.strip().lower()):
+        elif re.search(user_response.strip().lower(), "^(no|n)$"):
             r.set("restart:" + user_id, 0)
             s_api.post_message(user_id, "Ok", True)
         else:
