@@ -32,5 +32,6 @@ if __name__ == '__main__':
 def respond(pq):
     while pq.length() > 0:
         if pq.priority() < time.time():
-            logging.debug(pq.pop_task())
+            task = pq.pop_task()
+            logging.debug(task)
             s_api.post_message(task[0], task[1], True)
