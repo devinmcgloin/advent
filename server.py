@@ -29,50 +29,12 @@ app = Flask(__name__)
 def process_mesage():
     """Listens at /hooks for posts to that url."""
 
-    request_data = json.loads(request.data.decode("utf-8"))
+    data = request.data.decode("utf-8")
 
-    logging.info(request_data)
+    logging.info(data)
 
-    try:
-        user_response = parse.most_recent_msg(request_data)
-        user_id = parse.get_user_id(request_data)
-    except:
-        logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
-        raise ParseException(sys.exc_info()[0])
+    q.enqueue_call(func=respond, args=(data,))
 
-    logging.info("user_id={0}, user_response={1}".format(user_id, user_response))
-
-    if tip.is_tip(user_response.lower()):
-        logging.info("TIP TEXT={}".format(user_response))
-        tip_amount = tip.tip_amount(user_response)
-        s_api.post_message(user_id, "$[{}]({:.2f})".format("Confirm Tip", tip_amount), True)
-        logging.info("$[{}]({:.2f})".format("Confirm Tip", tip_amount))
-        r.lpush("tip:" + user_id, tip_amount)
-        return "OK"
-
-    if advent.user_exists(user_id):
-        logging.info("PROCESSING RESPONSE FOR={}".format(user_id))
-        response = advent.respond(user_id, user_response).strip()
-    else:
-        logging.info("CREATING NEW USER={}".format(user_id))
-        response = advent.new_game(user_id).strip()
-
-    r.rpush("conv:" + user_id, user_response)
-    r.rpush("conv:" + user_id, response)
-
-    logging.debug("user={0} game reply={1}".format(user_id,response))
-
-    schedule = schedule_msg(response)
-
-    t = time.time()
-    for msg in schedule:
-        t = int(t + msg[1])
-        pq.add_task((user_id, msg[0]), t)
-
-
-    q.enqueue_call(func=respond, args=(pq,))
-
-    pq = PriorityQueue()
 
     logging.debug("JOB SENT")
 
