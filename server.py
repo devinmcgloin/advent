@@ -41,7 +41,7 @@ def process_mesage():
 
     logging.debug("restart status={}".format(r.get("restart:" + user_id)))
 
-    if int(r.get("restart:" + user_id)) == 1:
+    if r.get("restart:" + user_id) == b'1':
         logging.debug("restart check for user={}".format(user_id))
         if re.search(user_response.strip().lower(), "^(yes|y)$"):
             response = advent.new_game(user_id)
