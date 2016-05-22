@@ -39,6 +39,8 @@ def process_mesage():
 
     logging.info("user_id={0}, user_response={1}".format(user_id, user_response))
 
+    logging.debug("restart status={}".format(r.get("restart:" + user_id)))
+
     if r.get("restart:" + user_id) == 1:
         logging.debug("restart check for user={}".format(user_id))
         if re.search(user_response.strip().lower(), "^(yes|y)$"):
@@ -62,7 +64,7 @@ def process_mesage():
         logging.info("{1} tip from {0}".format(user_id, tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
         return "OK"
-    elif user_response.lower() == "restart":
+    elif user_response.lower() == "restart" or user_response.lower() == "reset":
         r.set("restart:" + user_id, 1)
         s_api.post_message(user_id, "Do you want to restart? I cannot undo this.", True)
         return "OK"

@@ -2,23 +2,23 @@
 Handles interfacing with the Adventure module.
 """
 
-#------------------------------------------
-from .game import Game
-from time import sleep
+import logging
 import os
 import re
 
+import redis
 
 from .data import parse
-import redis
-import logging
+from .game import Game
 
 r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
 
 capitalize = ["don", "woods", "i", "willie", "crowther.", "devin", "mcgloin", "i'll"]
 
+
 def user_exists(user_id):
     return r.exists("save:" + user_id)
+
 
 def new_game(user_id, seed=None):
     """Create new game"""
@@ -30,6 +30,7 @@ def new_game(user_id, seed=None):
     r.set("save:" + user_id, game.t_suspend())
     return response
 
+
 def respond(user_id, user_response):
     """Gets the game response for a specific user_id and user_response"""
     game = Game.resume(r.get("save:" + user_id))
@@ -38,17 +39,20 @@ def respond(user_id, user_response):
     r.set("save:" + user_id, game.t_suspend())
     return response
 
+
 def load_advent_dat(data):
     """Called for each came object"""
     datapath = os.path.join(os.path.dirname(__file__), 'advent.dat')
     with open(datapath, 'r') as datafile:
         parse(data, datafile)
 
+
 def format_response(response):
-    clean_response = response.replace("\n"," ").lower().strip()
+    clean_response = response.replace("\n", " ").lower().strip()
     clean_response = " ".join([cap(s) for s in clean_response.split(" ")])
     rsp = "\n".join(accum_words(clean_response))
     return rsp
+
 
 def cap(s):
     if s == "mcgloin":
@@ -57,9 +61,11 @@ def cap(s):
         return s.capitalize()
     return s
 
+
 def first_upper(s):
     """Capitalizes the first letter, leaves everything else alone"""
     return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), s, 1)
+
 
 def accum_words(response):
     """Takes words split by space and capitalizes first character and special cases"""
