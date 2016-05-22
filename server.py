@@ -1,17 +1,22 @@
 from flask import Flask, request
 import json
-from smooch import Smooch
+from pysmooch.smooch import Smooch
 import os
 import adventure.loader as advent
 import time
 import logging
 import sys
-import smooch_parse as parse
+import pysmooch.smooch_parse as parse
 import tip
 import redis
+from rq import Queue
+from rq.job import Job
+from worker import respond
 
 s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
-r = redis.from_url(os.environ.get("REDIS_URL"))
+r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
+logging.debug(os.getenv("REDIS_URL", 'redis://localhost:6379'))
+q = Queue("default", connection=r)
 
 app = Flask(__name__)
 
@@ -19,38 +24,18 @@ app = Flask(__name__)
 def process_mesage():
     """Listens at /hooks for posts to that url."""
 
-    data = json.loads(request.data.decode("utf-8"))
+    data = request.data.decode("utf-8")
 
-    try:
-        user_response = parse.most_recent_msg(data)
-        user_id = parse.get_user_id(data)
-    except:
-        logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
-        return
+    job = q.enqueue_call(func=respond,
+                         args=(data,))
 
-    logging.debug("user_id={0}, user_response={1}".format(user_id, user_response))
+    logging.debug("JOB SENT")
 
-    if tip.is_tip(user_response.lower()):
-        logging.debug("TIP TEXT={}".format(user_response))
-        tip_amount = tip.tip_amount(user_response)
-        s_api.post_message(user_id, "$[{}]({:.2f})".format("Confirm Tip", tip_amount), True)
-        logging.debug("$[{}]({:.2f})".format("Confirm Tip", tip_amount))
-        r.lpush("tip:" + user_id, tip_amount)
-        return "OK"
+    time.sleep(10)
 
-    if advent.user_exists(user_id):
-        logging.debug("PROCESSING RESPONSE FOR={}".format(user_id))
-        response = advent.respond(user_id, user_response).strip()
-    else:
-        logging.debug("CREATING NEW USER={}".format(user_id))
-        response = advent.new_game(user_id).strip()
+    logging.debug(job)
 
-    r.rpush("conv:" + user_id, user_response)
-    r.rpush("conv:" + user_id, response)
-
-    logging.debug("user={0} game reply={1}".format(user_id,response))
-    s_api.post_message(user_id, response, True)
-    return "OK"
+    return job.result
 
 @app.route('/')
 def index():
@@ -59,7 +44,7 @@ def index():
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
-    s_api.delete_all_webhooks()
-    webhook_id, webhook_secret = s_api.make_webhook("http://advent-term-120.herokuapp.com/hooks", "message:appUser")
+    #s_api.delete_all_webhooks()
+    #webhook_id, webhook_secret = s_api.make_webhook("http://advent-term-120.herokuapp.com/hooks", "message:appUser")
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
