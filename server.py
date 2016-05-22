@@ -31,7 +31,7 @@ def process_mesage():
 
     request_data = json.loads(request.data.decode("utf-8"))
 
-    logging.debug(data)
+    logging.info(request_data)
 
     try:
         user_response = parse.most_recent_msg(request_data)
