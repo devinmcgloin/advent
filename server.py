@@ -49,8 +49,9 @@ def process_mesage():
         logging.info("TIP TEXT={}".format(user_response))
         tip_amount = tip.tip_amount(user_response)
         # Smooch deals in terms of cents, so dollar amounts have to be converted
+        tip_amount *= 100
         s_api.post_buy_message(user_id, "Thanks for supporting Colossal Cave Adventures",
-                               "Confirm Tip", tip_amount * 100)
+                               "Confirm Tip for {:.2f}".format(tip_amount), tip_amount)
         logging.info("{1} tip from {0}".format(user_id, tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
         return "OK"
