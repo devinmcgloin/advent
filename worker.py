@@ -37,7 +37,8 @@ def respond(user_id, response):
         if pq.priority() < time.time():
             task = pq.pop_task()
             logging.debug(task)
-            s_api.post_message(task[0], task[1], True)
+            if task[1]:
+                s_api.post_message(task[0], task[1], True)
 
 
 def schedule_msg(response):

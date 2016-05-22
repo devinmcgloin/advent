@@ -40,24 +40,30 @@ def process_mesage():
     logging.info("user_id={0}, user_response={1}".format(user_id, user_response))
 
     if r.get("restart:" + user_id) == 1:
-        r.set("restart:" + user_id, 0)
-        if re.search("^(yes|y)$", user_response.strip()):
+        if re.search("^(yes|y)$", user_response.strip().lower()):
             response = advent.new_game(user_id)
             s_api.post_message(user_id, response, True)
-            return "OK"
+            r.set("restart:" + user_id, 0)
+        elif re.search("^(no|n)$", user_response.strip().lower()):
+            r.set("restart:" + user_id, 0)
+            s_api.post_message(user_id, "Ok", True)
+        else:
+            s_api.post_message(user_id, "Please answer the question.", True)
+        return "OK"
     elif tip.is_tip(user_response.lower()):
         logging.info("TIP TEXT={}".format(user_response))
         tip_amount = tip.tip_amount(user_response)
+
         # Smooch deals in terms of cents, so dollar amounts have to be converted
-        tip_amount *= 100
-        s_api.post_buy_message(user_id, "Thanks for supporting Colossal Cave Adventures",
-                               "Confirm Tip for {:.2f}".format(tip_amount), tip_amount)
+        tip_amount_adj = 100 * tip_amount
+        s_api.post_buy_message(user_id, "Thank you for supporting Colossal Cave Adventures",
+                               "Confirm Tip for {:.2f}".format(tip_amount), tip_amount_adj)
         logging.info("{1} tip from {0}".format(user_id, tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
         return "OK"
     elif user_response.lower() == "restart":
         r.set("restart:" + user_id, 1)
-        s_api.post_message(user_id, "Are you sure you want to restart? This cannot be undone.", True)
+        s_api.post_message(user_id, "Do you want to restart? I cannot undo this.", True)
         return "OK"
     elif advent.user_exists(user_id):
         logging.info("PROCESSING RESPONSE FOR={}".format(user_id))
