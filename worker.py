@@ -1,36 +1,35 @@
-import os
 import sys
-
-import redis
-from rq import Worker, Queue, Connection
-from pysmooch.smooch import Smooch
-
-import logging
-import json
-import re
-
 import time
+
+import json
+import logging
+import os
 import random as random
+import re
+import redis
+from rq import Worker, Connection
 
-
-
+import adventure.loader as advent
+import pysmooch.smooch_parse as parse
+import tip
+from pysmooch.smooch import Smooch
+from pq import PriorityQueue
 
 s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
 r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
 
 listen = ["default"]
 
-
-
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
     with Connection(r):
         logging.debug(listen)
         worker = Worker(listen)
         worker.work()
 
-def respond(data):
 
+def respond(data):
     request_data = json.loads(data)
     try:
         user_response = parse.most_recent_msg(request_data)
@@ -59,15 +58,15 @@ def respond(data):
     r.rpush("conv:" + user_id, user_response)
     r.rpush("conv:" + user_id, response)
 
-    logging.debug("user={0} game reply={1}".format(user_id,response))
+    logging.debug("user={0} game reply={1}".format(user_id, response))
 
     schedule = schedule_msg(response)
+    pq = PriorityQueue()
 
     t = time.time()
     for msg in schedule:
         t = int(t + msg[1])
         pq.add_task((user_id, msg[0]), t)
-
 
     while pq.length() > 0:
         if pq.priority() < time.time():
@@ -102,6 +101,7 @@ def schedule_msg(response):
                 next_fast = True
         return tuple(order)
 
+
 class ParseException(Exception):
-    def __init__(self,*args,**kwargs):
-        Exception.__init__(self,*args,**kwargs)
+    def __init__(self, *args, **kwargs):
+        Exception.__init__(self, *args, **kwargs)
