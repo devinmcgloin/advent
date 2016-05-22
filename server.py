@@ -31,6 +31,8 @@ def process_mesage():
 
     request_data = json.loads(request.data.decode("utf-8"))
 
+    logging.debug(data)
+
     try:
         user_response = parse.most_recent_msg(request_data)
         user_id = parse.get_user_id(request_data)
@@ -41,18 +43,18 @@ def process_mesage():
     logging.info("user_id={0}, user_response={1}".format(user_id, user_response))
 
     if tip.is_tip(user_response.lower()):
-        logging.debug("TIP TEXT={}".format(user_response))
+        logging.info("TIP TEXT={}".format(user_response))
         tip_amount = tip.tip_amount(user_response)
         s_api.post_message(user_id, "$[{}]({:.2f})".format("Confirm Tip", tip_amount), True)
-        logging.debug("$[{}]({:.2f})".format("Confirm Tip", tip_amount))
+        logging.info("$[{}]({:.2f})".format("Confirm Tip", tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
         return "OK"
 
     if advent.user_exists(user_id):
-        logging.debug("PROCESSING RESPONSE FOR={}".format(user_id))
+        logging.info("PROCESSING RESPONSE FOR={}".format(user_id))
         response = advent.respond(user_id, user_response).strip()
     else:
-        logging.debug("CREATING NEW USER={}".format(user_id))
+        logging.info("CREATING NEW USER={}".format(user_id))
         response = advent.new_game(user_id).strip()
 
     r.rpush("conv:" + user_id, user_response)
@@ -71,6 +73,7 @@ def process_mesage():
     q.enqueue_call(func=respond, args=(pq,))
 
     logging.debug("JOB SENT")
+
     return "OK"
 
 @app.route('/')
