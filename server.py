@@ -1,15 +1,21 @@
+import json
 import logging
 import os
+import re
+import sys
+
 import redis
 from flask import Flask, request
 from rq import Queue
 
+import adventure.loader as advent
+import pysmooch.smooch_parse as parse
+import tip
 from pysmooch.smooch import Smooch
 from worker import respond
 
 s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
 r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
-logging.debug(os.getenv("REDIS_URL", 'redis://localhost:6379'))
 q = Queue("default", connection=r)
 
 app = Flask(__name__)
@@ -17,13 +23,53 @@ app = Flask(__name__)
 
 @app.route('/hooks', methods=['POST'])
 def process_mesage():
-    """Listens at /hooks for posts to that url."""
+    """Listens at /hooks for posts to that url and gets response from game engine."""
 
     data = request.data.decode("utf-8")
 
     logging.info(data)
 
-    q.enqueue_call(func=respond, args=(data,))
+    request_data = json.loads(data)
+    try:
+        user_response = parse.most_recent_msg(request_data)
+        user_id = parse.get_user_id(request_data)
+    except:
+        logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
+        raise ParseException(sys.exc_info()[0])
+
+    logging.info("user_id={0}, user_response={1}".format(user_id, user_response))
+
+    if r.get("restart:" + user_id) == 1:
+        r.set("restart:" + user_id, 0)
+        if re.search("^(yes|y)$", user_response.strip()):
+            response = advent.new_game(user_id)
+            s_api.post_message(user_id, response, True)
+            return "OK"
+    elif tip.is_tip(user_response.lower()):
+        logging.info("TIP TEXT={}".format(user_response))
+        tip_amount = tip.tip_amount(user_response)
+        s_api.post_buy_message(user_id, "Thanks for supporting Colossal Cave Adventures",
+                               "Confirm Tip", "{:.2f}".format(tip_amount))
+        logging.info("{:.2f} tip from {0}".format(user_id, tip_amount))
+        r.lpush("tip:" + user_id, tip_amount)
+        return "OK"
+    elif user_response.lower() == "restart":
+        r.set("restart:" + user_id, 1)
+        s_api.post_message(user_id, "Are you sure you want to restart? This cannot be undone.", True)
+        return
+    elif advent.user_exists(user_id):
+        logging.info("PROCESSING RESPONSE FOR={}".format(user_id))
+        response = advent.respond(user_id, user_response).strip()
+    else:
+        logging.info("CREATING NEW USER={}".format(user_id))
+        response = advent.new_game(user_id).strip()
+
+    r.rpush("conv:" + user_id, user_response)
+    r.rpush("conv:" + user_id, response)
+
+    logging.debug("user={0} game reply={1}".format(user_id, response))
+
+    q.enqueue_call(func=respond, args=(user_id, response))
 
     logging.debug("JOB SENT")
 
@@ -34,6 +80,11 @@ def process_mesage():
 def index():
     """Throws up HTML to index page to check if working properly"""
     return 'Welcome to Adventure'
+
+
+class ParseException(Exception):
+    def __init__(self, *args, **kwargs):
+        Exception.__init__(self, *args, **kwargs)
 
 
 if __name__ == '__main__':

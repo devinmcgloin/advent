@@ -75,7 +75,17 @@ class Smooch:
                         data,
                         'post')
 
+    def post_buy_message(self, user_id, message, short_text, amount):
+        role = "appMaker"
 
+        data = {"text": message, "role":role, "actions": [{
+            "type": "buy",
+            "text": short_text,
+            "amount": amount
+        }]}
+        return self.ask('appusers/{0}/conversation/messages'.format(user_id),
+                        data,
+                        'post')
 
     def get_user(self, user_id):
         return self.ask('appusers/{0}'.format(user_id), {}, 'get')
@@ -128,7 +138,7 @@ class Smooch:
 
 
     def ensure_webhook_exist(self, trigger, webhook_url):
-        log.debug("Ensuring that webhook exist: %s; %s", trigger, webhook_url)
+        logging.debug("Ensuring that webhook exist: %s; %s", trigger, webhook_url)
         r = self.get_webhooks()
         data = r.json()
 
@@ -144,17 +154,17 @@ class Smooch:
                     message_webhook_needs_updating = True
                 break
 
-        log.debug("message_webhook_id: %s", message_webhook_id)
-        log.debug("message_webhook_needs_updating: %s", message_webhook_needs_updating)
+        logging.debug("message_webhook_id: %s", message_webhook_id)
+        logging.debug("message_webhook_needs_updating: %s", message_webhook_needs_updating)
         if not message_webhook_id:
-            log.debug("Creating webhook")
+            logging.debug("Creating webhook")
             r = self.make_webhook(webhook_url, [trigger])
             data = r.json()
             message_webhook_id = data["webhook"]["_id"]
             webhook_secret = data["webhook"]["secret"]
 
         if message_webhook_needs_updating:
-            log.debug("Updating webhook")
+            logging.debug("Updating webhook")
             self.update_webhook(message_webhook_id, webhook_url, [trigger])
 
         return message_webhook_id, webhook_secret
