@@ -13,7 +13,7 @@ from .data import parse
 import redis
 import logging
 
-r = redis.from_url(os.environ.get("REDIS_URL"))
+r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
 
 capitalize = ["don", "woods", "i", "willie", "crowther.", "devin", "mcgloin", "i'll"]
 
