@@ -48,9 +48,10 @@ def process_mesage():
     elif tip.is_tip(user_response.lower()):
         logging.info("TIP TEXT={}".format(user_response))
         tip_amount = tip.tip_amount(user_response)
+        # Smooch deals in terms of cents, so dollar amounts have to be converted
         s_api.post_buy_message(user_id, "Thanks for supporting Colossal Cave Adventures",
-                               "Confirm Tip", tip_amount)
-        logging.info("{:.2f} tip from {0}".format(user_id, tip_amount))
+                               "Confirm Tip", tip_amount * 100)
+        logging.info("{1} tip from {0}".format(user_id, tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
         return "OK"
     elif user_response.lower() == "restart":
