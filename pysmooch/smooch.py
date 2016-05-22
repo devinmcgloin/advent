@@ -38,7 +38,6 @@ class Smooch:
     def user_jwt(self, user_id):
         return self.jwt_for_user(self.key_id, self.secret, user_id)
 
-
     def ask(self, endpoint, data, method='get', files=None):
         url = "https://api.smooch.io/v1/{0}".format(endpoint)
 
@@ -78,11 +77,13 @@ class Smooch:
     def post_buy_message(self, user_id, message, short_text, amount):
         role = "appMaker"
 
-        data = {"text": message, "role":role, "actions": [{
-            "type": "buy",
-            "text": short_text,
-            "amount": amount
-        }]}
+        data = {"text": message,
+                "role": role,
+                "actions": [{
+                    "type": "buy",
+                    "text": short_text,
+                    "amount": amount
+                }]}
         return self.ask('appusers/{0}/conversation/messages'.format(user_id),
                         data,
                         'post')
