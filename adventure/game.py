@@ -1696,18 +1696,13 @@ class Game(Data):
         self.move_to(newroom)
 
     def i_quit_callback(self, yes):
-        print("i quit called")
-
         self.write_message(54)
         if yes:
-            print("yes called in i quit callback")
             self.score_and_exit()
 
     def i_score_callback(self, yes):
-        print("i score called")
         self.write_message(54)
         if yes:
-            print("yes called in i score callback")
             self.score_and_exit()
 
     def t_read_callback(self, yes):

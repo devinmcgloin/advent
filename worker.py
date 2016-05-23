@@ -34,7 +34,7 @@ def respond(user_id, response):
         pq.add_task((user_id, msg[0]), t)
 
     while pq.length() > 0:
-        if pq.priority() < time.time():
+        if pq.lowest_priority() < time.time():
             task = pq.pop_task()
             logging.debug(task)
             if task[1]:

@@ -11,7 +11,7 @@ class PriorityQueue(object):
         self.size = 0
 
     def add_task(self, task, priority=0):
-        'Add a new task or update the priority of an existing task'
+        """Add a new task or update the priority of an existing task"""
         if task in self.entry_finder:
             self.remove_task(task)
         count = next(self.counter)
@@ -21,13 +21,13 @@ class PriorityQueue(object):
         self.size += 1
 
     def remove_task(self, task):
-        'Mark an existing task as REMOVED.  Raise KeyError if not found.'
+        """Mark an existing task as REMOVED.  Raise KeyError if not found."""
         entry = self.entry_finder.pop(task)
         entry[-1] = self.REMOVED
         self.size -= 1
 
     def pop_task(self):
-        'Remove and return the lowest priority task. Raise KeyError if empty.'
+        """Remove and return the lowest priority task. Raise KeyError if empty."""
         while self.pq:
             priority, count, task = heapq.heappop(self.pq)
             if task is not self.REMOVED:
@@ -40,9 +40,11 @@ class PriorityQueue(object):
         return self.size
 
     def poll_task(self):
+        """Return the lowest priority task"""
         priority, count, task = self.pq[0]
         return task
 
-    def priority(self):
+    def lowest_priority(self):
+        """Returns the lowest priority of the active tasks"""
         priority, count, task = self.pq[0]
         return priority

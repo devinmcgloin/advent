@@ -3,10 +3,10 @@ See https://github.com/whatsahoy/smooch-python
 """
 
 import logging
+
 import jwt
-import json
-import os
 import requests
+
 
 class Smooch:
     class APIError(Exception):
@@ -17,9 +17,9 @@ class Smooch:
             return str(self.response)
 
     def __init__(self, key_id, secret):
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
-        logging.debug("KEY_ID={}".format(key_id))
-        logging.debug("SECRET={}".format(secret))
+        logging.basicConfig(level=logging.DEBUG,
+                            format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
+
         self.key_id = key_id
         self.secret = secret
         self.jwt_token = jwt.encode({'scope': 'app'},
@@ -27,8 +27,7 @@ class Smooch:
                                     algorithm='HS256',
                                     headers={"kid": key_id, "alg": "HS256"}).decode("utf-8")
 
-        logging.debug(self.jwt_token)
-
+    @staticmethod
     def jwt_for_user(key_id, secret, user_id):
         return jwt.encode({'scope': 'appUser', 'userId': user_id},
                           secret,
@@ -54,15 +53,12 @@ class Smooch:
         if files:
             headers.pop('content-type')
 
-        #logging.debug("headers={}".format(headers))
-
         response = caller_func(url=url, headers=headers, json=data)
 
         if response.status_code == 200 or response.status_code == 201:
             return response
         else:
             raise Smooch.APIError(response)
-
 
     def post_message(self, user_id, message, sent_by_maker=False):
         role = "appUser"
@@ -119,7 +115,6 @@ class Smooch:
         else:
             return self.ask('webhooks', {"target": target}, 'post')
 
-
     def update_webhook(self, webhook_id, target, triggers):
         return self.ask('webhooks/{0}'.format(webhook_id), {"target": target, "triggers": triggers}, 'put')
 
@@ -136,7 +131,6 @@ class Smooch:
             responses.append(dr)
 
         return responses
-
 
     def ensure_webhook_exist(self, trigger, webhook_url):
         logging.debug("Ensuring that webhook exist: %s; %s", trigger, webhook_url)

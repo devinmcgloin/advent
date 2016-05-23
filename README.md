@@ -1,4 +1,4 @@
-Welcome to the git repository for the Python 3 version of Adventure!
-The project README is one level deeper, inside of the package itself:
+# Advent
 
-[adventure/README.txt](adventure/README.txt)
+This is a port of the classic terminal game adventure to messenger.
+I'm using [Smooch](https://smooch.io) to manage the messages and deployed on [Heroku](https://heroku.com)
