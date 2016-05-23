@@ -1291,11 +1291,17 @@ class Game(Data):
     def i_inventory(self, verb):  # 8200
         first = True
         objs = [obj for obj in self.inventory if obj is not self.bear]
-        for obj in objs:
+        inven_response = []
+        for i, obj in enumerate(objs):
             if first:
                 self.write_message(99)
                 first = False
-        self.write(", ".join([obj.inventory_message for obj in objs]) + ".")
+                inven_response.append(obj.inventory_message)
+                continue
+            inven_response.append(", " + obj.inventory_message.strip())
+            if i == len(objs) - 1:
+                inven_response.append(".")
+        self.write("".join(inven_response))
         if self.bear.is_toting:
             self.write_message(141)
         if not objs:
