@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import sys
+import datetime
 
 import redis
 from flask import Flask, request
@@ -13,6 +14,7 @@ import pysmooch.smooch_parse as parse
 import tip
 from pysmooch.smooch import Smooch
 from worker import respond
+import highscore as hs
 
 s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
 r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
@@ -41,7 +43,9 @@ def process_mesage():
 
     logging.debug("restart status={}".format(r.get("restart:" + user_id)))
 
-    if r.get("restart:" + user_id) == b'1':
+    user_exists = advent.user_exists(user_id)
+
+    if user_exists and r.get("restart:" + user_id) == b'1':
         logging.debug("restart check for user={}".format(user_id))
         if re.search(user_response.strip().lower(), "^(yes|y)$"):
             response = advent.new_game(user_id)
@@ -53,6 +57,17 @@ def process_mesage():
         else:
             s_api.post_message(user_id, "Please answer the question.", True)
         return "OK"
+    # elif user_exists and r.get("highscore:" + user_id) == b'1':
+        # if re.search(user_response.strip().lower(), "^(yes|y)$"):
+        #     response = hs.add_user_scoreboard(user_id, )
+        #     s_api.post_message(user_id, response, True)
+        #     r.set("highscore:" + user_id, 0)
+        # elif re.search(user_response.strip().lower(), "^(no|n)$"):
+        #     r.set("highscore:" + user_id, 0)
+        #     s_api.post_message(user_id, "Ok. \nYou can type 'restart' to play again.", True)
+        # else:
+        #     s_api.post_message(user_id, "Please answer the question.", True)
+        # return "OK"
     elif tip.is_tip(user_response.lower()):
         logging.info("TIP TEXT={}".format(user_response))
         tip_amount = tip.tip_amount(user_response)
@@ -64,13 +79,20 @@ def process_mesage():
         logging.info("{1} tip from {0}".format(user_id, tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
         return "OK"
-    elif user_response.lower() == "restart" or user_response.lower() == "reset":
+    elif user_exists and (user_response.lower() == "restart" or user_response.lower() == "reset"):
         r.set("restart:" + user_id, 1)
-        s_api.post_message(user_id, "Do you want to restart? I cannot undo this.", True)
+        s_api.post_message(user_id, "Do you want to restart?\n I cannot undo this.", True)
         return "OK"
-    elif advent.user_exists(user_id):
+    # elif user_response.lower() == "top score" or user_response.lower() == "high score":
+    #     s_api.post_message(user_id, hs.get_top_ten(), True)
+    #     return "OK"
+    elif user_exists:
         logging.info("PROCESSING RESPONSE FOR={}".format(user_id))
         response = advent.respond(user_id, user_response).strip()
+        # if re.search("You scored \d+ out of a possible \d+ using \d+ turns.", response) \
+        #         and hs.is_highscore(hs.get_score(response)):
+        #     response += "\nWould you like to add your first name and last initial to the global high score list?"
+        #     r.zadd("highscore:" + user_id, str(datetime.now()), hs.get_score(response))
     else:
         logging.info("CREATING NEW USER={}".format(user_id))
         response = advent.new_game(user_id).strip()
