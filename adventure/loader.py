@@ -70,29 +70,30 @@ def first_upper(s):
 def accum_words(response):
     """Takes words split by space and capitalizes first character and special cases"""
     cleaned_sentences = []
-    if '"' not in response:
-        regex = re.compile("(\!+|\?+|\.+)")
-        split = re.split(regex, response)
-        if len(split) > 1:
-            puncts = split[1::2]
-            sentences = split[::2]
-            for s, p in zip(sentences, puncts):
-                sent = s.strip()
-                pun = p.strip()
-                cleaned_sentences.append(first_upper(sent) + pun)
-            return cleaned_sentences
-        else:
-            return [first_upper(s) for s in split]
+    regex = re.compile("(\!+|\?+|\.+)")
+    split = re.split(regex, response)
+    if len(split) > 1:
+        puncts = split[1::2]
+        sentences = split[::2]
+        for s, p in zip(sentences, puncts):
+            sent = s.strip()
+            pun = p.strip()
+            cleaned_sentences.append(first_upper(sent) + pun)
+        return cleaned_sentences
     else:
-        regex = re.compile("(\!+|\?+|\.+|\")")
-        split = re.split(regex, response)
-        s = ""
-        for section in split:
+        return [first_upper(s) for s in split]
 
-            if re.search("[a-zA-Z ]+", section):
-                s += accum_words(section)[0]
-            else:
-                s += section
 
-        return [s]
+    # else:
+    #     regex = re.compile("(\!+|\?+|\.+|\")")
+    #     split = re.split(regex, response)
+    #     s = ""
+    #     for section in split:
+    #
+    #         if re.search("[a-zA-Z ]+", section):
+    #             s += accum_words(section)[0]
+    #         else:
+    #             s += section
+    #
+    #     return [s]
 
