@@ -123,6 +123,6 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
     smooch.delete_all_webhooks()
-    webhook_id, webhook_secret = smooch.create_webhook("http://advent-term-120.herokuapp.com/hooks", "message:appUser")
+    webhook_id, webhook_secret = smooch.create_webhook("http://advent-term-120.herokuapp.com/hooks", ["message:appUser"])
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
