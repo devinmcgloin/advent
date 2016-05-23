@@ -1,6 +1,6 @@
 import redis
 import os
-from pysmooch.smooch import Smooch
+import smooch
 
 r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
 

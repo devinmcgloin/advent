@@ -8,9 +8,8 @@ import redis
 from rq import Worker, Connection
 
 from pq import PriorityQueue
-from pysmooch.smooch import Smooch
+import smooch
 
-s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
 r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
 
 listen = ["default"]
@@ -38,7 +37,7 @@ def respond(user_id, response):
             task = pq.pop_task()
             logging.debug(task)
             if task[1]:
-                s_api.post_message(task[0], task[1], True)
+                smooch.send_message(task[0], task[1], True)
 
 
 def schedule_msg(response):

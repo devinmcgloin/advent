@@ -1,22 +1,21 @@
+import datetime
 import json
 import logging
 import os
 import re
 import sys
-import datetime
 
 import redis
 from flask import Flask, request
 from rq import Queue
 
 import adventure.loader as advent
-import pysmooch.smooch_parse as parse
-import tip
-from pysmooch.smooch import Smooch
-from worker import respond
 import highscore as hs
+import smooch_parse as parse
+import tip
+import smooch
+from worker import respond
 
-s_api = Smooch(str(os.getenv("SMOOCH_KEY_ID")), str(os.getenv("SMOOCH_SECRET")))
 r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
 q = Queue("default", connection=r)
 
@@ -49,13 +48,13 @@ def process_mesage():
         logging.debug("restart check for user={}".format(user_id))
         if re.search(user_response.strip().lower(), "^(yes|y)$"):
             response = advent.new_game(user_id)
-            s_api.post_message(user_id, response, True)
+            smooch.send_message(user_id, response, True)
             r.set("restart:" + user_id, 0)
         elif re.search(user_response.strip().lower(), "^(no|n)$"):
             r.set("restart:" + user_id, 0)
-            s_api.post_message(user_id, "Ok", True)
+            smooch.send_message(user_id, "Ok", True)
         else:
-            s_api.post_message(user_id, "Please answer the question.", True)
+            smooch.send_message(user_id, "Please answer the question.", True)
         return "OK"
     # elif user_exists and r.get("highscore:" + user_id) == b'1':
         # if re.search(user_response.strip().lower(), "^(yes|y)$"):
@@ -74,14 +73,14 @@ def process_mesage():
 
         # Smooch deals in terms of cents, so dollar amounts have to be converted
         tip_amount_adj = 100 * tip_amount
-        s_api.post_buy_message(user_id, "Thank you for supporting Colossal Cave Adventures",
+        smooch.request_payment(user_id, "Thank you for supporting Colossal Cave Adventures",
                                "Confirm Tip for {:.2f}".format(tip_amount), tip_amount_adj)
         logging.info("{1} tip from {0}".format(user_id, tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
         return "OK"
     elif user_exists and (user_response.lower() == "restart" or user_response.lower() == "reset"):
         r.set("restart:" + user_id, 1)
-        s_api.post_message(user_id, "Do you want to restart?\n I cannot undo this.", True)
+        smooch.send_message(user_id, "Do you want to restart?\n I cannot undo this.", True)
         return "OK"
     # elif user_response.lower() == "top score" or user_response.lower() == "high score":
     #     s_api.post_message(user_id, hs.get_top_ten(), True)
@@ -123,7 +122,7 @@ class ParseException(Exception):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
-    s_api.delete_all_webhooks()
-    webhook_id, webhook_secret = s_api.make_webhook("http://advent-term-120.herokuapp.com/hooks", "message:appUser")
+    smooch.delete_all_webhooks()
+    webhook_id, webhook_secret = smooch.create_webhook("http://advent-term-120.herokuapp.com/hooks", "message:appUser")
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
