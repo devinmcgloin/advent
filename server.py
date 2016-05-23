@@ -3,7 +3,7 @@ import logging
 import os
 import re
 import sys
-import datetime
+from datetime import datetime
 
 import redis
 from flask import Flask, request
@@ -57,17 +57,17 @@ def process_mesage():
         else:
             s_api.post_message(user_id, "Please answer the question.", True)
         return "OK"
-    # elif user_exists and r.get("highscore:" + user_id) == b'1':
-        # if re.search(user_response.strip().lower(), "^(yes|y)$"):
-        #     response = hs.add_user_scoreboard(user_id, )
-        #     s_api.post_message(user_id, response, True)
-        #     r.set("highscore:" + user_id, 0)
-        # elif re.search(user_response.strip().lower(), "^(no|n)$"):
-        #     r.set("highscore:" + user_id, 0)
-        #     s_api.post_message(user_id, "Ok. \nYou can type 'restart' to play again.", True)
-        # else:
-        #     s_api.post_message(user_id, "Please answer the question.", True)
-        # return "OK"
+    elif user_exists and r.get("highscore:" + user_id) == b'1':
+        if re.search(user_response.strip().lower(), "^(yes|y)$"):
+            response = hs.add_user_scoreboard(user_id, 1)
+            s_api.post_message(user_id, response, True)
+            r.set("highscore:" + user_id, 0)
+        elif re.search(user_response.strip().lower(), "^(no|n)$"):
+            r.set("highscore:" + user_id, 0)
+            s_api.post_message(user_id, "Ok. \nYou can type 'restart' to play again.", True)
+        else:
+            s_api.post_message(user_id, "Please answer the question.", True)
+        return "OK"
     elif tip.is_tip(user_response.lower()):
         logging.info("TIP TEXT={}".format(user_response))
         tip_amount = tip.tip_amount(user_response)
@@ -83,16 +83,16 @@ def process_mesage():
         r.set("restart:" + user_id, 1)
         s_api.post_message(user_id, "Do you want to restart?\n I cannot undo this.", True)
         return "OK"
-    # elif user_response.lower() == "top score" or user_response.lower() == "high score":
-    #     s_api.post_message(user_id, hs.get_top_ten(), True)
-    #     return "OK"
+    elif user_response.lower() == "top score" or user_response.lower() == "high score":
+        s_api.post_message(user_id, hs.get_top_ten(), True)
+        return "OK"
     elif user_exists:
         logging.info("PROCESSING RESPONSE FOR={}".format(user_id))
         response = advent.respond(user_id, user_response).strip()
-        # if re.search("You scored \d+ out of a possible \d+ using \d+ turns.", response) \
-        #         and hs.is_highscore(hs.get_score(response)):
-        #     response += "\nWould you like to add your first name and last initial to the global high score list?"
-        #     r.zadd("highscore:" + user_id, str(datetime.now()), hs.get_score(response))
+        if re.search("You scored \d+ out of a possible \d+ using \d+ turns.", response) \
+                and hs.is_highscore(hs.get_score(response)):
+            response += "\nWould you like to add your first name and last initial to the global high score list?"
+            r.zadd("highscore:" + user_id, str(datetime.now()), hs.get_score(response))
     else:
         logging.info("CREATING NEW USER={}".format(user_id))
         response = advent.new_game(user_id).strip()
