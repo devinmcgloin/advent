@@ -56,6 +56,20 @@ def process_mesage():
         else:
             smooch.send_message(user_id, "Please answer the question.", True)
         return "OK"
+    elif user_exists and r.get("start_new:" +user_id) == b'1':
+        logging.debug("start_new check for user={}".format(user_id))
+        if re.search(user_response.strip().lower(), "^(yes|y)$"):
+            advent.new_game(user_id)
+            response = advent.respond(user_id, "no")
+            smooch.send_message(user_id, response, True)
+            r.set("start_new:" + user_id, 0)
+        elif re.search(user_response.strip().lower(), "^(no|n)$"):
+            r.set("start_new:" + user_id, 0)
+            advent.new_game(user_id)
+            smooch.send_message(user_id, "Ok, just send me a message to play again!", True)
+        else:
+            smooch.send_message(user_id, "Please answer the question.", True)
+        return "OK"
     # elif user_exists and r.get("highscore:" + user_id) == b'1':
         # if re.search(user_response.strip().lower(), "^(yes|y)$"):
         #     response = hs.add_user_scoreboard(user_id, )
@@ -88,7 +102,10 @@ def process_mesage():
     elif user_exists:
         logging.info("PROCESSING RESPONSE FOR={}".format(user_id))
         response = advent.respond(user_id, user_response).strip()
-        # if re.search("You scored \d+ out of a possible \d+ using \d+ turns.", response) \
+        if re.search("You scored \d+ out of a possible \d+ using \d+ turns.", response):
+            advent.new_game(user_id)
+            r.set("start_new:"+user_id, 1)
+            response += "\nWould you like to play again?"
         #         and hs.is_highscore(hs.get_score(response)):
         #     response += "\nWould you like to add your first name and last initial to the global high score list?"
         #     r.zadd("highscore:" + user_id, str(datetime.now()), hs.get_score(response))
