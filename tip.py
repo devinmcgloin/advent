@@ -4,7 +4,7 @@ utility functions to determine if a command is a tip or not.
 
 import re
 
-is_tip_regex = re.compile("^tip *-?(?:0|[1-9]\d{0,2}(?:,?\d{3})*)(?:\.\d+)?$")
+is_tip_regex = re.compile("^tip *\$?(?:0|[1-9]\d{0,2}(?:,?\d{3})*)(?:\.\d+)?$")
 amount_regex = re.compile("-?(?:0|[1-9]\d{0,2}(?:,?\d{3})*)(?:\.\d+)?$")
 
 
