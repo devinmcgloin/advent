@@ -42,7 +42,6 @@ A small stream flows out of the building and down a gully.
 
 
 building
-{: .right}
 
 ```
 You are inside a building, a well house for a large spring.
@@ -65,7 +64,6 @@ There is a bottle of water here.
 ```
 
 get keys
-{: .right}
 
 ```
 Ok.
