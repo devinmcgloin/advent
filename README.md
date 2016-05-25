@@ -5,10 +5,10 @@ Adventure is a port of the classic terminal game
 to modern chat clients. Adventure is available on both FB messenger
 and Telegram.
 
-[![Messenger](https://devinmcgloin.com/advent/img/messenger.png)](https://m.me/adventerm)
+[![Messenger](https://devinmcgloin.com/advent/messenger.png)](https://m.me/adventerm)
 
 
-[![Telegram](https://devinmcgloin.com/advent/img/telegram.png)](http://telegram.me/cave_adventure_bot)
+[![Telegram](https://devinmcgloin.com/advent/telegram.png)](http://telegram.me/cave_adventure_bot)
 
 The content of the game is mostly the same as the original released in
 1976, it even runs off the same data file! I have however made a few
@@ -28,27 +28,48 @@ deployed on [Heroku](https://heroku.com). Source is avaliable on
 
 ## Usage
 
->You are standing at the end of a road before a small brick building.
+```
+You are standing at the end of a road before a small brick building.
+```
 
->Around you is a forest.
+```
+Around you is a forest.
+```
 
->A small stream flows out of the building and down a gully.
+```
+A small stream flows out of the building and down a gully.
+```
+
 
 building
+{: .right}
 
->You are inside a building, a well house for a large spring.
+```
+You are inside a building, a well house for a large spring.
+```
 
->There are some keys on the ground here.
+```
+There are some keys on the ground here.
+```
 
->There is a shiny brass lamp nearby.
+```
+There is a shiny brass lamp nearby.
+```
 
->There is food here.
+```
+There is food here.
+```
 
->There is a bottle of water here.
+```
+There is a bottle of water here.
+```
 
 get keys
+{: .right}
 
-> Ok.
+```
+Ok.
+```
 
 ## Contributions
 
