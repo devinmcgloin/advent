@@ -48,6 +48,18 @@ def process_postback():
             smooch.send_message(user_id, "Ok.", True)
         return "OK"
 
+    elif postback_payload.startswith("start_new"):
+        if postback_payload.endswith("yes"):
+            advent.new_game(user_id)
+            response = advent.respond(user_id, "no")
+            smooch.send_message(user_id, response, True)
+            r.delete("yesno:" + user_id)
+        else:
+            r.delete("yesno:" + user_id)
+            r.delete("save:" + user_id)
+            smooch.send_message(user_id, "Ok.", True)
+        return "OK"
+
     elif re.match("(yes|no)", postback_payload):
         if postback_payload.endswith("yes"):
             response = advent.respond(user_id, "yes")
@@ -58,9 +70,9 @@ def process_postback():
                 advent.new_game(user_id)
                 r.set("yesno:" + user_id, "new_game")
                 smooch.send_postbacks(user_id, "Do you want to play again?",
-                                  {"Yes": "restart_yes",
-                                   "No": "restart_no"})
-            return "OK"
+                                  {"Yes": "start_new_yes",
+                                   "No": "start_new_no"})
+                return "OK"
             smooch.send_message(user_id, response, True)
             r.delete("yesno:" + user_id)
         else:
@@ -94,6 +106,7 @@ def process_mesage():
 
     if r.get("yesno:"+user_id):
         response_type = r.get("yesno:"+user_id)
+        logging.debug("Response type={}".format(response_type))
         if response_type == b'restart':
             smooch.send_postbacks(user_id, "Do you want to restart?",
                                   {"Yes": "yes",
@@ -121,12 +134,14 @@ def process_mesage():
         logging.info("{1} tip from {0}".format(user_id, tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
         return "OK"
+
     elif user_exists and (user_response.lower() == "restart" or user_response.lower() == "reset"):
         r.set("yesno:" + user_id, "restart")
         smooch.send_postbacks(user_id, "Do you want to restart?\n I cannot undo this.",
                               {"Yes": "restart_yes",
                                "No" : "restart_no"})
         return "OK"
+    
     elif user_exists:
         response = advent.respond(user_id, user_response).strip()
         logging.info("user={0} game reply={1}".format(user_id, response))
@@ -146,8 +161,8 @@ def process_mesage():
             advent.new_game(user_id)
             r.set("yesno:"+user_id, "new_game")
             smooch.send_postbacks(user_id, "Do you want to play again?",
-                                  {"Yes": "restart_yes",
-                                   "No": "restart_no"})
+                                  {"Yes": "start_new_yes",
+                                   "No": "start_new_no"})
             return "OK"
         else:
             logging.debug("user={0} game reply={1}".format(user_id, response))
