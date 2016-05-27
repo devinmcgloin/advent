@@ -124,7 +124,7 @@ def process_mesage():
                                   {"Yes": "yes",
                                    "No": "no"})
             r.set("yesno:" + user_id, "game")
-            return "Ok"
+            return "OK"
 
         elif re.search("You scored \d+ out of a possible \d+ using \d+ turns.", response):
             respond(user_id, response)
@@ -133,21 +133,17 @@ def process_mesage():
             smooch.send_postbacks(user_id, "Do you want to play again?",
                                   {"Yes": "restart_yes",
                                    "No": "restart_no"})
-        return "Ok"
+        return "OK"
     else:
         logging.info("CREATING NEW USER={}".format(user_id))
         response = advent.new_game(user_id).strip()
+        logging.debug("user={0} game reply={1}".format(user_id, response))
 
-    r.rpush("conv:" + user_id, user_response)
-    r.rpush("conv:" + user_id, response)
+        q.enqueue_call(func=respond, args=(user_id, response))
 
-    logging.debug("user={0} game reply={1}".format(user_id, response))
+        logging.debug("JOB SENT")
 
-    q.enqueue_call(func=respond, args=(user_id, response))
-
-    logging.debug("JOB SENT")
-
-    return "OK"
+        return "OK"
 
 
 @app.route('/')
