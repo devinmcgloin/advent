@@ -73,11 +73,11 @@ def process_postback():
                                   {"Yes": "start_new_yes",
                                    "No": "start_new_no"})
                 return "OK"
-            smooch.send_message(user_id, response, True)
+            q.enqueue_call(func=respond, args=(user_id, response))
             r.delete("yesno:" + user_id)
         else:
             response = advent.respond(user_id, "no")
-            smooch.send_message(user_id, response, True)
+            q.enqueue_call(func=respond, args=(user_id, response))
             r.delete("yesno:" + user_id)
         return "OK"
 
@@ -174,8 +174,14 @@ def process_mesage():
         logging.info("CREATING NEW USER={}".format(user_id))
         response = advent.new_game(user_id).strip()
         logging.debug("user={0} game reply={1}".format(user_id, response))
-
-        q.enqueue_call(func=respond, args=(user_id, response))
+        split_response = response.split("\n")
+        question = split_response[-1]
+        del split_response[-1]
+        respond(user_id, "\n".join(split_response))
+        smooch.send_postbacks(user_id, question,
+                              {"Yes": "yes",
+                               "No": "no"})
+        r.set("yesno:" + user_id, "game")
 
         logging.debug("JOB SENT")
 
