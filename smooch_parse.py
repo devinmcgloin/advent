@@ -14,7 +14,7 @@ def most_recent_msg(conversation, msg_from="appUser"):
     return messages[0]["text"]
 
 def get_postbacks(postback):
-    return postback["postbacks"]["message"]["actions"]
+    return postback["postbacks"][0]["action"]["payload"]
 
 
 # [{
