@@ -94,6 +94,7 @@ def process_mesage():
                                    "No": "no"})
         else:
             logging.debug("Extraneous response type={}".format(response_type))
+        return "OK"
 
     elif tip.is_tip(user_response.lower()):
         logging.info("TIP TEXT={}".format(user_response))
@@ -133,7 +134,14 @@ def process_mesage():
             smooch.send_postbacks(user_id, "Do you want to play again?",
                                   {"Yes": "restart_yes",
                                    "No": "restart_no"})
-        return "OK"
+            return "OK"
+        else:
+            response = advent.respond(user_id, user_response).strip()
+            logging.debug("user={0} game reply={1}".format(user_id, response))
+
+            q.enqueue_call(func=respond, args=(user_id, response))
+            return "OK"
+
     else:
         logging.info("CREATING NEW USER={}".format(user_id))
         response = advent.new_game(user_id).strip()
