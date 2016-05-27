@@ -30,9 +30,7 @@ def process_postback():
 
     request_data = json.loads(data)
 
-    postbacks = parse.get_postbacks(request_data)
-
-    postback_payload = postbacks[0]["payload"]
+    postback_payload = parse.get_postback_payload(request_data)
     user_id = parse.get_user_id(request_data)
 
     if postback_payload.startswith("restart"):

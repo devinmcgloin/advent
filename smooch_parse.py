@@ -13,7 +13,7 @@ def most_recent_msg(conversation, msg_from="appUser"):
     messages = [x for x in conversation["messages"] if x["role"] == msg_from]
     return messages[0]["text"]
 
-def get_postbacks(postback):
+def get_postback_payload(postback):
     return postback["postbacks"][0]["action"]["payload"]
 
 
