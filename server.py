@@ -80,15 +80,15 @@ def process_mesage():
 
     if r.get("yesno:"+user_id):
         response_type = r.get("yesno:"+user_id)
-        if response_type is "restart":
+        if response_type == b'restart':
             smooch.send_postbacks(user_id, "Do you want to restart?",
                                   {"Yes": "yes",
                                    "No": "no"})
-        elif response_type is "new_game":
+        elif response_type is b'new_game':
             smooch.send_postbacks(user_id, "Do you want to play again?",
                                   {"Yes": "yes",
                                    "No": "no"})
-        elif response_type is "game":
+        elif response_type is b'game':
             smooch.send_postbacks(user_id, "Please answer the question.",
                                   {"Yes": "yes",
                                    "No": "no"})
