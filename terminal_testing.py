@@ -19,5 +19,6 @@ if __name__ == '__main__':
         game_output = advent.new_game(user_id)
     while True:
         print(game_output)
+        print(advent.yes_no_question(user_id))
         user_in = input("> ").strip()
         game_output = advent.respond(user_id, user_in)

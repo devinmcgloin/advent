@@ -22,7 +22,41 @@ q = Queue("default", connection=r)
 app = Flask(__name__)
 
 
-@app.route('/hooks', methods=['POST'])
+@app.route('/yesno', methods=['POST'])
+def process_postback():
+    data = request.data.decode("utf-8")
+
+    logging.info(data)
+
+    request_data = json.loads(data)
+
+    postbacks = parse.get_postbacks(request_data)
+
+    postback_payload = postbacks[0]["payload"]
+    user_id = parse.get_user_id(request_data)
+
+    if postback_payload.startswith("restart"):
+        if postback_payload.endswith("yes"):
+            advent.new_game(user_id)
+            response = advent.respond(user_id, "no")
+            smooch.send_message(user_id, response, True)
+            r.set("yesno:" + user_id, 0)
+        else:
+            r.set("yesno:" + user_id, 0)
+            smooch.send_message(user_id, "Ok.", True)
+
+    elif re.match("(yes|no)", postback_payload):
+        if postback_payload.endswith("yes"):
+            response = advent.respond(user_id, "yes")
+            smooch.send_message(user_id, response, True)
+            r.set("yesno:" + user_id, 0)
+        else:
+            response = advent.respond(user_id, "no")
+            smooch.send_message(user_id, response, True)
+            r.set("yesno:" + user_id, 0)
+
+
+@app.route('/general', methods=['POST'])
 def process_mesage():
     """Listens at /hooks for posts to that url and gets response from game engine."""
 
@@ -44,71 +78,62 @@ def process_mesage():
 
     user_exists = advent.user_exists(user_id)
 
-    if user_exists and r.get("restart:" + user_id) == b'1':
-        logging.debug("restart check for user={}".format(user_id))
-        if re.search(user_response.strip().lower(), "^(yes|y)$"):
-            response = advent.new_game(user_id)
-            smooch.send_message(user_id, response, True)
-            r.set("restart:" + user_id, 0)
-        elif re.search(user_response.strip().lower(), "^(no|n)$"):
-            r.set("restart:" + user_id, 0)
-            smooch.send_message(user_id, "Ok", True)
+    if r.get("yesno:"+user_id) != 0:
+        response_type = r.get("yesno:"+user_id)
+        if response_type is "restart":
+            smooch.send_postbacks(user_id, "Do you want to restart?",
+                                  {"Yes": "yes",
+                                   "No": "no"})
+        elif response_type is "new_game":
+            smooch.send_postbacks(user_id, "Do you want to play again?",
+                                  {"Yes": "yes",
+                                   "No": "no"})
+        elif response_type is "game":
+            smooch.send_postbacks(user_id, "Please answer the question.",
+                                  {"Yes": "yes",
+                                   "No": "no"})
         else:
-            smooch.send_message(user_id, "Please answer the question.", True)
-        return "OK"
-    elif user_exists and r.get("start_new:" +user_id) == b'1':
-        logging.debug("start_new check for user={}".format(user_id))
-        if re.search(user_response.strip().lower(), "^(yes|y)$"):
-            advent.new_game(user_id)
-            response = advent.respond(user_id, "no")
-            smooch.send_message(user_id, response, True)
-            r.set("start_new:" + user_id, 0)
-        elif re.search(user_response.strip().lower(), "^(no|n)$"):
-            r.set("start_new:" + user_id, 0)
-            advent.new_game(user_id)
-            smooch.send_message(user_id, "Ok, just send me a message to play again!", True)
-        else:
-            smooch.send_message(user_id, "Please answer the question.", True)
-        return "OK"
-    # elif user_exists and r.get("highscore:" + user_id) == b'1':
-        # if re.search(user_response.strip().lower(), "^(yes|y)$"):
-        #     response = hs.add_user_scoreboard(user_id, )
-        #     s_api.post_message(user_id, response, True)
-        #     r.set("highscore:" + user_id, 0)
-        # elif re.search(user_response.strip().lower(), "^(no|n)$"):
-        #     r.set("highscore:" + user_id, 0)
-        #     s_api.post_message(user_id, "Ok. \nYou can type 'restart' to play again.", True)
-        # else:
-        #     s_api.post_message(user_id, "Please answer the question.", True)
-        # return "OK"
+            logging.debug("Extraneous response type={}".format(response_type))
+
     elif tip.is_tip(user_response.lower()):
         logging.info("TIP TEXT={}".format(user_response))
         tip_amount = tip.tip_amount(user_response)
 
         # Smooch deals in terms of cents, so dollar amounts have to be converted
         tip_amount_adj = 100 * tip_amount
-        smooch.request_payment(user_id, "Thank you for supporting Colossal Cave Adventures",
+        smooch.request_payment(user_id, "Thank you for supporting Adventure",
                                "Confirm Tip for {:.2f}".format(tip_amount), tip_amount_adj)
         logging.info("{1} tip from {0}".format(user_id, tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
         return "OK"
     elif user_exists and (user_response.lower() == "restart" or user_response.lower() == "reset"):
-        r.set("restart:" + user_id, 1)
-        smooch.send_message(user_id, "Do you want to restart?\n I cannot undo this.", True)
+        r.set("yesno:" + user_id, "restart")
+        smooch.send_postbacks(user_id, "Do you want to restart?\n I cannot undo this.",
+                              {"Yes": "restart_yes",
+                               "No" : "restart_no"})
         return "OK"
-    # elif user_response.lower() == "top score" or user_response.lower() == "high score":
-    #     s_api.post_message(user_id, hs.get_top_ten(), True)
-    #     return "OK"
     elif user_exists:
         logging.info("PROCESSING RESPONSE FOR={}".format(user_id))
         response = advent.respond(user_id, user_response).strip()
-        if re.search("You scored \d+ out of a possible \d+ using \d+ turns.", response):
+        if advent.yes_no_question(user_id):
+            split_response = response.split("\n")
+            question = split_response[-1]
+            del split_response[-1]
+            respond(user_id, "\n".join(split_response))
+            smooch.send_postbacks(user_id, question,
+                                  {"Yes": "yes",
+                                   "No": "no"})
+            r.set("yesno:" + user_id, "game")
+            return "Ok"
+
+        elif re.search("You scored \d+ out of a possible \d+ using \d+ turns.", response):
+            respond(user_id, response)
             advent.new_game(user_id)
-            r.set("start_new:"+user_id, 1)
-            response += "\nWould you like to play again?"
-        #         and hs.is_highscore(hs.get_score(response)):
-        #     response += "\nWould you like to add your first name and last initial to the global high score list?"
-        #     r.zadd("highscore:" + user_id, str(datetime.now()), hs.get_score(response))
+            r.set("yesno:"+user_id, "new_game")
+            smooch.send_postbacks(user_id, "Do you want to play again?",
+                                  {"Yes": "restart_yes",
+                                   "No": "restart_no"})
+        return "Ok"
     else:
         logging.info("CREATING NEW USER={}".format(user_id))
         response = advent.new_game(user_id).strip()
@@ -140,6 +165,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
     smooch.delete_all_webhooks()
-    webhook_id, webhook_secret = smooch.create_webhook("http://advent-term-120.herokuapp.com/hooks", ["message:appUser"])
+    smooch.create_webhook("http://advent-term-120.herokuapp.com/general", ["message:appUser"])
+    smooch.create_webhook("http://advent-term-120.herokuapp.com/yesno", ["postback"])
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)

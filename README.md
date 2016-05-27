@@ -82,4 +82,4 @@ Ok.
 
 ### License
 
-[MIT License](http://chibicode.mit-license.org/)
+[MIT License](https://opensource.org/licenses/MIT)

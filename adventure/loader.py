@@ -40,6 +40,11 @@ def respond(user_id, user_response):
     return response
 
 
+def yes_no_question(user_id):
+    game = Game.resume(r.get("save:" + user_id))
+    return game.yes_no_question()
+
+
 def load_advent_dat(data):
     """Called for each came object"""
     datapath = os.path.join(os.path.dirname(__file__), 'advent.dat')
@@ -84,16 +89,15 @@ def accum_words(response):
         return [first_upper(s) for s in split]
 
 
-    # else:
-    #     regex = re.compile("(\!+|\?+|\.+|\")")
-    #     split = re.split(regex, response)
-    #     s = ""
-    #     for section in split:
-    #
-    #         if re.search("[a-zA-Z ]+", section):
-    #             s += accum_words(section)[0]
-    #         else:
-    #             s += section
-    #
-    #     return [s]
-
+        # else:
+        #     regex = re.compile("(\!+|\?+|\.+|\")")
+        #     split = re.split(regex, response)
+        #     s = ""
+        #     for section in split:
+        #
+        #         if re.search("[a-zA-Z ]+", section):
+        #             s += accum_words(section)[0]
+        #         else:
+        #             s += section
+        #
+        #     return [s]

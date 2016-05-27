@@ -1735,3 +1735,8 @@ class Game(Data):
             self.start2(answer)
         elif "i_score_callback" == callback_id:
             self.i_score_callback(answer)
+
+    def yes_no_question(self):
+        if self.yesno_callback is not None:
+            return True
+        return False
