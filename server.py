@@ -40,20 +40,20 @@ def process_postback():
             advent.new_game(user_id)
             response = advent.respond(user_id, "no")
             smooch.send_message(user_id, response, True)
-            r.set("yesno:" + user_id, 0)
+            r.delete("yesno:" + user_id)
         else:
-            r.set("yesno:" + user_id, 0)
+            r.delete("yesno:" + user_id)
             smooch.send_message(user_id, "Ok.", True)
 
     elif re.match("(yes|no)", postback_payload):
         if postback_payload.endswith("yes"):
             response = advent.respond(user_id, "yes")
             smooch.send_message(user_id, response, True)
-            r.set("yesno:" + user_id, 0)
+            r.delete("yesno:" + user_id)
         else:
             response = advent.respond(user_id, "no")
             smooch.send_message(user_id, response, True)
-            r.set("yesno:" + user_id, 0)
+            r.delete("yesno:" + user_id)
 
 
 @app.route('/general', methods=['POST'])
@@ -78,7 +78,7 @@ def process_mesage():
 
     user_exists = advent.user_exists(user_id)
 
-    if r.get("yesno:"+user_id) != b'0':
+    if r.get("yesno:"+user_id):
         response_type = r.get("yesno:"+user_id)
         if response_type is "restart":
             smooch.send_postbacks(user_id, "Do you want to restart?",
