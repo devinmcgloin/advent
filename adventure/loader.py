@@ -10,6 +10,7 @@ import redis
 
 from .data import parse
 from .game import Game
+import random
 
 r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
 
@@ -83,6 +84,9 @@ def accum_words(response):
         for s, p in zip(sentences, puncts):
             sent = s.strip()
             pun = p.strip()
+            if len(pun) + len(sent) < 30 and cleaned_sentences and random.random() < .8:
+                cleaned_sentences[-1] += " " + first_upper(sent) + pun
+                continue
             cleaned_sentences.append(first_upper(sent) + pun)
         return cleaned_sentences
     else:
