@@ -78,7 +78,7 @@ def process_mesage():
 
     user_exists = advent.user_exists(user_id)
 
-    if r.get("yesno:"+user_id) != 0:
+    if r.get("yesno:"+user_id) != b'0':
         response_type = r.get("yesno:"+user_id)
         if response_type is "restart":
             smooch.send_postbacks(user_id, "Do you want to restart?",
