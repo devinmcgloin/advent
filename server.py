@@ -24,6 +24,7 @@ app = Flask(__name__)
 
 @app.route('/yesno', methods=['POST'])
 def process_postback():
+
     data = request.data.decode("utf-8")
 
     logging.info(data)
@@ -32,6 +33,9 @@ def process_postback():
 
     postback_payload = parse.get_postback_payload(request_data)
     user_id = parse.get_user_id(request_data)
+
+    if not r.get("yesno:"+user_id):
+        return "OK"
 
     if postback_payload.startswith("restart"):
         if postback_payload.endswith("yes"):
@@ -42,6 +46,7 @@ def process_postback():
         else:
             r.delete("yesno:" + user_id)
             smooch.send_message(user_id, "Ok.", True)
+        return "OK"
 
     elif re.match("(yes|no)", postback_payload):
         if postback_payload.endswith("yes"):
@@ -52,6 +57,7 @@ def process_postback():
             response = advent.respond(user_id, "no")
             smooch.send_message(user_id, response, True)
             r.delete("yesno:" + user_id)
+        return "OK"
 
 
 @app.route('/general', methods=['POST'])
