@@ -84,11 +84,11 @@ def process_mesage():
             smooch.send_postbacks(user_id, "Do you want to restart?",
                                   {"Yes": "yes",
                                    "No": "no"})
-        elif response_type is b'new_game':
+        elif response_type == b'new_game':
             smooch.send_postbacks(user_id, "Do you want to play again?",
                                   {"Yes": "yes",
                                    "No": "no"})
-        elif response_type is b'game':
+        elif response_type == b'game':
             smooch.send_postbacks(user_id, "Please answer the question.",
                                   {"Yes": "yes",
                                    "No": "no"})
