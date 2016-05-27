@@ -56,8 +56,7 @@ def process_postback():
             r.delete("yesno:" + user_id)
         else:
             r.delete("yesno:" + user_id)
-            advent.new_game(user_id)
-            advent.respond(user_id, "no")
+            r.delete("save:" + user_id)
             smooch.send_message(user_id, "Ok.", True)
         return "OK"
 
