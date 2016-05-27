@@ -51,6 +51,16 @@ def process_postback():
     elif re.match("(yes|no)", postback_payload):
         if postback_payload.endswith("yes"):
             response = advent.respond(user_id, "yes")
+
+            # Checking if user has asked to end the game.
+            if re.search("You scored \d+ out of a possible \d+ using \d+ turns.", response):
+                respond(user_id, response)
+                advent.new_game(user_id)
+                r.set("yesno:" + user_id, "new_game")
+                smooch.send_postbacks(user_id, "Do you want to play again?",
+                                  {"Yes": "restart_yes",
+                                   "No": "restart_no"})
+            return "OK"
             smooch.send_message(user_id, response, True)
             r.delete("yesno:" + user_id)
         else:
@@ -107,7 +117,7 @@ def process_mesage():
         # Smooch deals in terms of cents, so dollar amounts have to be converted
         tip_amount_adj = 100 * tip_amount
         smooch.request_payment(user_id, "Thank you for supporting Adventure",
-                               "Confirm Tip for {:.2f}".format(tip_amount), tip_amount_adj)
+                               {"Confirm Tip for {:.2f}".format(tip_amount): tip_amount_adj})
         logging.info("{1} tip from {0}".format(user_id, tip_amount))
         r.lpush("tip:" + user_id, tip_amount)
         return "OK"
