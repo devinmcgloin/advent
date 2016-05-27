@@ -140,7 +140,6 @@ def process_mesage():
                                    "No": "restart_no"})
             return "OK"
         else:
-            response = advent.respond(user_id, user_response).strip()
             logging.debug("user={0} game reply={1}".format(user_id, response))
 
             q.enqueue_call(func=respond, args=(user_id, response))
