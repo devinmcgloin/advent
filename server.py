@@ -118,8 +118,8 @@ def process_mesage():
                                "No" : "restart_no"})
         return "OK"
     elif user_exists:
-        logging.info("PROCESSING RESPONSE FOR={}".format(user_id))
         response = advent.respond(user_id, user_response).strip()
+        logging.info("user={0} game reply={1}".format(user_id, response))
         if advent.yes_no_question(user_id):
             split_response = response.split("\n")
             question = split_response[-1]
