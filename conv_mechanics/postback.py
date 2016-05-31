@@ -53,7 +53,7 @@ def game_fallback(postback_payload, user_id):
             smooch.send_postbacks(user_id, "Do you want to play again?",
                                   {"Yes": "start_new_yes",
                                    "No": "start_new_no"})
-            return "OK"
+            return True
         q.enqueue_call(func=respond, args=(user_id, response))
         r.delete("yesno:" + user_id)
         return True

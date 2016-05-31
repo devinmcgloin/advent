@@ -60,6 +60,8 @@ def new_user(user_response, user_id):
     split_response = response.split("\n")
     question = split_response[-1]
     del split_response[-1]
+    split_response.append("Adventure is a text based game, and a port of the classic terminal game Advent.")
+    logging.debug("split_response={} question={}".format(split_response, question))
     respond(user_id, "\n".join(split_response))
     smooch.send_postbacks(user_id, question,
                           {"Yes": "yes",
@@ -89,13 +91,6 @@ def normal_response(user_response, user_id):
         smooch.send_postbacks(user_id, "Do you want to play again?",
                               {"Yes": "start_new_yes",
                                "No": "start_new_no"})
-        return True
-
-    elif re.search("Welcome to adventure!!", response):
-        message = response.split("\n")
-        message = message[0] + "\nAdventure is a text based game, and a port of the classic terminal game Advent. " + \
-                  message[1]
-        q.enqueue_call(func=respond, args=(user_id, message))
         return True
     else:
         logging.debug("user={0} game reply={1}".format(user_id, response))
