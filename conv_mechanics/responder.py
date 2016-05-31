@@ -126,7 +126,7 @@ def process_response(user_response, user_id):
         return process_tip(user_response, user_id)
     elif user_exists and (user_response.lower() == "restart" or user_response.lower() == "reset"):
         return restart(user_response, user_id)
-    elif user_exists and user_response.lower() == "help":
+    elif user_exists and (user_response.lower() == "help" or user_response.lower() == "?"):
         return help_message(user_response, user_id)
     elif user_exists and user_response.lower() == "info":
         return info_message(user_response, user_id)
