@@ -14,18 +14,18 @@ def yes_no_question(user_response, user_id):
     logging.debug("Response type={}".format(response_type))
     if response_type == b'restart':
         smooch.send_postbacks(user_id, "Do you want to restart?",
-                              {"Yes": "restart_yes",
-                               "No": "restart_no"})
+                              [("Yes", "restart_yes"),
+                               ("No", "restart_no")])
         return True
     elif response_type == b'new_game':
         smooch.send_postbacks(user_id, "Do you want to play again?",
-                              {"Yes": "start_new_yes",
-                               "No": "start_new_no"})
+                              [("Yes", "start_new_yes"),
+                               ("No", "start_new_no")])
         return True
     elif response_type == b'game':
         smooch.send_postbacks(user_id, "Please answer the question.",
-                              {"Yes": "yes",
-                               "No": "no"})
+                              [("Yes", "yes"),
+                               ("No", "no")])
         return True
     else:
         logging.error("Extraneous response type={}".format(response_type))
@@ -48,8 +48,8 @@ def process_tip(user_response, user_id):
 def restart(user_response, user_id):
     r.set("yesno:" + user_id, "restart")
     smooch.send_postbacks(user_id, "Do you want to restart?\n I cannot undo this.",
-                          {"Yes": "restart_yes",
-                           "No": "restart_no"})
+                          [("Yes", "restart_yes"),
+                           ("No", "restart_no")])
     return True
 
 
@@ -62,8 +62,8 @@ def new_user(user_response, user_id):
     logging.debug("split_response={} question={}".format(split_response, question))
     respond(user_id, "\n".join(split_response))
     smooch.send_postbacks(user_id, question,
-                          {"Yes": "yes",
-                           "No": "no"})
+                          [("Yes", "yes"),
+                           ("No", "no")])
     r.set("yesno:" + user_id, "game")
     return True
 
@@ -77,8 +77,8 @@ def normal_response(user_response, user_id):
         del split_response[-1]
         respond(user_id, "\n".join(split_response))
         smooch.send_postbacks(user_id, question,
-                              {"Yes": "yes",
-                               "No": "no"})
+                              [("Yes", "yes"),
+                               ("No", "no")])
         r.set("yesno:" + user_id, "game")
         return True
 
@@ -87,8 +87,8 @@ def normal_response(user_response, user_id):
         advent.new_game(user_id)
         r.set("yesno:" + user_id, "new_game")
         smooch.send_postbacks(user_id, "Do you want to play again?",
-                              {"Yes": "start_new_yes",
-                               "No": "start_new_no"})
+                              [("Yes", "start_new_yes"),
+                               ("No", "start_new_no")])
         return True
     else:
         logging.debug("user={0} game reply={1}".format(user_id, response))
@@ -102,8 +102,8 @@ def help_message(user_response, user_id):
     response = advent.respond(user_id, "help").split("\n")
     message = response[0:2]
     smooch.send_message(user_id, "\n".join(message), True)
-    smooch.send_links(user_id, response[2], {"More Help": "https://devinmcgloin.com/advent/help/",
-                                             "Hints": "https://devinmcgloin.com/advent/hints/"})
+    smooch.send_links(user_id, response[2], [("More Help", "https://devinmcgloin.com/advent/help/"),
+                                             ("Hints", "https://devinmcgloin.com/advent/hints/")])
     return True
 
 
@@ -112,8 +112,7 @@ def info_message(user_response, user_id):
     response = advent.respond(user_id, "info").split("\n")
     message = response[0:3]
     smooch.send_message(user_id, "\n".join(message), True)
-    smooch.send_links(user_id, response[3], {"More Info"
-                                                    : "https://devinmcgloin.com/advent/info/"})
+    smooch.send_links(user_id, response[3], [("More Info", "https://devinmcgloin.com/advent/info/")])
     return True
 
 

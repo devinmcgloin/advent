@@ -51,8 +51,8 @@ def game_fallback(postback_payload, user_id):
             advent.new_game(user_id)
             r.set("yesno:" + user_id, "new_game")
             smooch.send_postbacks(user_id, "Do you want to play again?",
-                                  {"Yes": "start_new_yes",
-                                   "No": "start_new_no"})
+                                  [("Yes", "start_new_yes"),
+                                   ("No", "start_new_no")])
             return True
         q.enqueue_call(func=respond, args=(user_id, response))
         r.delete("yesno:" + user_id)
