@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sys
+import datetime
 
 import smooch
 from flask import Flask, request, render_template, redirect
@@ -12,6 +13,15 @@ from conv_mechanics import responder
 from parse import smooch_parse as parse
 
 app = Flask(__name__)
+
+
+
+@app.template_filter()
+def datetimefilter(value, format='%Y/%m/%d %H:%M'):
+    """convert a datetime to a different format."""
+    return value.strftime(format)
+
+app.jinja_env.filters['datetimefilter'] = datetimefilter
 
 
 @app.route('/yesno', methods=['POST'])
@@ -69,7 +79,9 @@ def index():
 
 @app.route('/highscores')
 def display_highscores():
-    return render_template("highscores.html", title="Highscores")
+    return render_template("highscores.html", title="Highscores", month=datetime.datetime.now(),
+                           month_scores=[("Mark K.", 105), ("Gerald G.", 98)],
+                           all_time_scores=[("Jason J.", 243), ("Usain U.", 210)])
 
 
 class ParseException(Exception):
@@ -80,8 +92,8 @@ class ParseException(Exception):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
-    smooch.delete_all_webhooks()
-    smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
-    smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
+    #smooch.delete_all_webhooks()
+    #smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
+    #smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)

@@ -14,13 +14,13 @@ def yes_no_question(user_response, user_id):
     logging.debug("Response type={}".format(response_type))
     if response_type == b'restart':
         smooch.send_postbacks(user_id, "Do you want to restart?",
-                              {"Yes": "yes",
-                               "No": "no"})
+                              {"Yes": "restart_yes",
+                               "No": "restart_no"})
         return True
     elif response_type == b'new_game':
         smooch.send_postbacks(user_id, "Do you want to play again?",
-                              {"Yes": "yes",
-                               "No": "no"})
+                              {"Yes": "start_new_yes",
+                               "No": "start_new_no"})
         return True
     elif response_type == b'game':
         smooch.send_postbacks(user_id, "Please answer the question.",
@@ -91,11 +91,38 @@ def normal_response(user_response, user_id):
                                "No": "start_new_no"})
         return True
 
+    elif re.search("Welcome to adventure!!", response):
+        message = response.split("\n")
+        message = message[0] + "\nAdventure is a text based game, and a port of the classic terminal game Advent. " + message[1]
+        q.enqueue_call(func=respond, args=(user_id, message))
+        return True
     else:
         logging.debug("user={0} game reply={1}".format(user_id, response))
 
         q.enqueue_call(func=respond, args=(user_id, response))
         return True
+
+
+# fixme
+def help_message(user_response, user_id):
+    """1378"""
+    response = advent.respond(user_id, "help").split("\n")
+    message = response[0:3]
+    respond(user_id, "\n".join(message))
+    smooch.send_links(user_id, {"More Help"
+                                : "https://devinmcgloin.com/advent/help/"})
+    return True
+
+
+# fixme
+def info_message(user_response, user_id):
+    """1531"""
+    response = advent.respond(user_id, "info").split("\n")
+    message = response[0:4]
+    respond(user_id, "\n".join(message))
+    smooch.send_links(user_id, {"More Info"
+                                : "https://devinmcgloin.com/advent/info/"})
+    return True
 
 
 def process_response(user_response, user_id):
@@ -107,6 +134,10 @@ def process_response(user_response, user_id):
         return process_tip(user_response, user_id)
     elif user_exists and (user_response.lower() == "restart" or user_response.lower() == "reset"):
         return restart(user_response, user_id)
+    elif user_exists and user_response.lower() == "help":
+        return help_message(user_response, user_id)
+    elif user_exists and user_response.lower() == "info":
+        return info_message(user_response, user_id)
     elif user_exists:
         return normal_response(user_response, user_id)
     else:

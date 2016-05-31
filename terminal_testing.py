@@ -20,6 +20,6 @@ if __name__ == '__main__':
     else:
         game_output = advent.new_game(user_id)
     while True:
-        print(game_output)
+        print("\n\n" + game_output)
         user_in = input("> ").strip()
         game_output = advent.respond(user_id, user_in)
