@@ -55,12 +55,10 @@ def restart(user_response, user_id):
 
 def new_user(user_response, user_id):
     logging.info("CREATING NEW USER={}".format(user_id))
-    response = advent.new_game(user_id).strip()
-    logging.debug("user={0} game reply={1}".format(user_id, response))
-    split_response = response.split("\n")
-    question = split_response[-1]
-    del split_response[-1]
-    split_response.append("Adventure is a text based game, and a port of the classic terminal game Advent.")
+    advent.new_game(user_id).strip()
+    split_response = ["Welcome to Adventure!!",
+                      "Adventure is a text based game, and a port of the classic terminal game Advent."]
+    question = "Would you like instructions?"
     logging.debug("split_response={} question={}".format(split_response, question))
     respond(user_id, "\n".join(split_response))
     smooch.send_postbacks(user_id, question,
