@@ -39,7 +39,7 @@ def schedule_msg(response):
         next_fast = False
         for i, sentence in enumerate(msg):
             if i == 0:
-                order.append((sentence, random.randrange(SUPER_FAST)))
+                order.append((sentence, 0))
             elif next_fast:
                 order.append((sentence, random.randrange(SUPER_FAST)))
                 next_fast = False

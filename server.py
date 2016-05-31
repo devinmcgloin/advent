@@ -65,12 +65,14 @@ def process_mesage():
         logging.error("Response Failure user_response={} user_id={}".format(user_response, user_id))
 
 
-
 @app.route('/')
 def index():
     """Throws up HTML to index page to check if working properly"""
     return 'Welcome to Adventure'
 
+@app.route('/highscores')
+def display_highscores():
+    return "Highscores!"
 
 class ParseException(Exception):
     def __init__(self, *args, **kwargs):
