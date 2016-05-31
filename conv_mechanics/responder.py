@@ -91,6 +91,7 @@ def normal_response(user_response, user_id):
                               {"Yes": "start_new_yes",
                                "No": "start_new_no"})
         return True
+
     else:
         logging.debug("user={0} game reply={1}".format(user_id, response))
 

@@ -5,7 +5,7 @@ import re
 import sys
 
 import smooch
-from flask import Flask, request
+from flask import Flask, request, render_template, redirect
 
 from adventure import advent
 from conn import r, q
@@ -65,12 +65,15 @@ def process_mesage():
         logging.error("Response Failure user_response={} user_id={}".format(user_response, user_id))
 
 
-
 @app.route('/')
 def index():
     """Throws up HTML to index page to check if working properly"""
-    return 'Welcome to Adventure'
+    return redirect("https://devinmcgloin.com/advent/", code=302)
 
+
+@app.route('/highscores')
+def display_highscores():
+    return render_template("highscores.html", title="Highscores")
 
 class ParseException(Exception):
     def __init__(self, *args, **kwargs):
@@ -80,8 +83,8 @@ class ParseException(Exception):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
-    smooch.delete_all_webhooks()
-    smooch.create_webhook("http://advent-term-120.herokuapp.com/general", ["message:appUser"])
-    smooch.create_webhook("http://advent-term-120.herokuapp.com/yesno", ["postback"])
+    #smooch.delete_all_webhooks()
+    #smooch.create_webhook("http://advent-term-120.herokuapp.com/general", ["message:appUser"])
+    #smooch.create_webhook("http://advent-term-120.herokuapp.com/yesno", ["postback"])
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
