@@ -93,7 +93,7 @@ def normal_response(user_response, user_id):
 
     elif re.search("Welcome to adventure!!", response):
         message = response.split("\n")
-        message = message[0] + "\nAdventure is a text based game, and a port of the classic terminal game Advent." + message[1]
+        message = message[0] + "\nAdventure is a text based game, and a port of the classic terminal game Advent. " + message[1]
         q.enqueue_call(func=respond, args=(user_id, message))
         return True
     else:
