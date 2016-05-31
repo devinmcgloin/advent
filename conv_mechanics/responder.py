@@ -1,13 +1,12 @@
-
 import logging
 import re
 
 import smooch
 
+import conv_mechanics.tip as tip
 from adventure import advent
 from conn import r, q
 from conv_mechanics.scheduler import respond
-import conv_mechanics.tip as tip
 
 
 def yes_no_question(user_response, user_id):

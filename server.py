@@ -1,16 +1,12 @@
 import json
 import logging
 import os
-import re
 import sys
 
 import smooch
 from flask import Flask, request, render_template, redirect
 
-from adventure import advent
-from conn import r, q
-from conv_mechanics import tip
-from conv_mechanics.scheduler import respond
+from conn import r
 from conv_mechanics import postback
 from conv_mechanics import responder
 from parse import smooch_parse as parse
@@ -75,6 +71,7 @@ def index():
 def display_highscores():
     return render_template("highscores.html", title="Highscores")
 
+
 class ParseException(Exception):
     def __init__(self, *args, **kwargs):
         Exception.__init__(self, *args, **kwargs)
@@ -83,8 +80,8 @@ class ParseException(Exception):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
-    #smooch.delete_all_webhooks()
-    #smooch.create_webhook("http://advent-term-120.herokuapp.com/general", ["message:appUser"])
-    #smooch.create_webhook("http://advent-term-120.herokuapp.com/yesno", ["postback"])
+    smooch.delete_all_webhooks()
+    smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
+    smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
