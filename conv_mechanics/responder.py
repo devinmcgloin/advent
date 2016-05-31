@@ -107,8 +107,9 @@ def normal_response(user_response, user_id):
 def help_message(user_response, user_id):
     """1378"""
     response = advent.respond(user_id, "help").split("\n")
-    message = response[0:3]
-    smooch.send_links(user_id, "\n".join(message), {"More Help"
+    message = response[0:2]
+    smooch.send_message(user_id, "\n".join(message), True)
+    smooch.send_links(user_id, response[2], {"More Help"
                                                     : "https://devinmcgloin.com/advent/help/"})
     return True
 
@@ -116,8 +117,9 @@ def help_message(user_response, user_id):
 def info_message(user_response, user_id):
     """1531"""
     response = advent.respond(user_id, "info").split("\n")
-    message = response[0:4]
-    smooch.send_links(user_id, "\n".join(message), {"More Info"
+    message = response[0:3]
+    smooch.send_message(user_id, message, True)
+    smooch.send_links(user_id, response[3], {"More Info"
                                                     : "https://devinmcgloin.com/advent/info/"})
     return True
 
