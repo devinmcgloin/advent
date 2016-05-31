@@ -102,8 +102,8 @@ def help_message(user_response, user_id):
     response = advent.respond(user_id, "help").split("\n")
     message = response[0:2]
     smooch.send_message(user_id, "\n".join(message), True)
-    smooch.send_links(user_id, response[2], {"More Help"
-                                                    : "https://devinmcgloin.com/advent/help/"})
+    smooch.send_links(user_id, response[2], {"More Help": "https://devinmcgloin.com/advent/help/",
+                                             "Hints": "https://devinmcgloin.com/advent/hints/"})
     return True
 
 
