@@ -12,7 +12,7 @@ from .data import parse
 from .game import Game
 import random
 
-r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
+from conn import r
 
 capitalize = ["don", "woods", "i", "willie", "crowther.", "devin", "mcgloin", "i'll", "i've", "i'd"]
 

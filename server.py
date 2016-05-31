@@ -1,4 +1,3 @@
-import datetime
 import json
 import logging
 import os
@@ -6,17 +5,16 @@ import re
 import sys
 
 import redis
+import smooch
 from flask import Flask, request
 from rq import Queue
 
 import adventure.loader as advent
-import highscore as hs
-import smooch_parse as parse
-import tip
-import smooch
+from conv_mechanics import tip
+from parse import smooch_parse as parse
 from worker import respond
+from conn import r
 
-r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
 q = Queue("default", connection=r)
 
 app = Flask(__name__)
@@ -24,7 +22,6 @@ app = Flask(__name__)
 
 @app.route('/yesno', methods=['POST'])
 def process_postback():
-
     data = request.data.decode("utf-8")
 
     logging.info(data)
@@ -34,9 +31,10 @@ def process_postback():
     postback_payload = parse.get_postback_payload(request_data)
     user_id = parse.get_user_id(request_data)
 
-    if not r.get("yesno:"+user_id):
+    if not r.get("yesno:" + user_id):
         return "OK"
 
+    # postback when user requests to restart
     if postback_payload.startswith("restart"):
         if postback_payload.endswith("yes"):
             advent.new_game(user_id)
@@ -48,6 +46,7 @@ def process_postback():
             smooch.send_message(user_id, "Ok.", True)
         return "OK"
 
+    # after finishing or quiting, user responds to play again
     elif postback_payload.startswith("start_new"):
         if postback_payload.endswith("yes"):
             advent.new_game(user_id)
@@ -60,6 +59,7 @@ def process_postback():
             smooch.send_message(user_id, "Ok.", True)
         return "OK"
 
+    # standard game response for yes no questions. 
     elif re.match("(yes|no)", postback_payload):
         if postback_payload.endswith("yes"):
             response = advent.respond(user_id, "yes")
@@ -70,8 +70,8 @@ def process_postback():
                 advent.new_game(user_id)
                 r.set("yesno:" + user_id, "new_game")
                 smooch.send_postbacks(user_id, "Do you want to play again?",
-                                  {"Yes": "start_new_yes",
-                                   "No": "start_new_no"})
+                                      {"Yes": "start_new_yes",
+                                       "No": "start_new_no"})
                 return "OK"
             q.enqueue_call(func=respond, args=(user_id, response))
             r.delete("yesno:" + user_id)
@@ -104,8 +104,8 @@ def process_mesage():
 
     user_exists = advent.user_exists(user_id)
 
-    if r.get("yesno:"+user_id):
-        response_type = r.get("yesno:"+user_id)
+    if r.get("yesno:" + user_id):
+        response_type = r.get("yesno:" + user_id)
         logging.debug("Response type={}".format(response_type))
         if response_type == b'restart':
             smooch.send_postbacks(user_id, "Do you want to restart?",
@@ -139,7 +139,7 @@ def process_mesage():
         r.set("yesno:" + user_id, "restart")
         smooch.send_postbacks(user_id, "Do you want to restart?\n I cannot undo this.",
                               {"Yes": "restart_yes",
-                               "No" : "restart_no"})
+                               "No": "restart_no"})
         return "OK"
 
     elif user_exists:
@@ -159,7 +159,7 @@ def process_mesage():
         elif re.search("You scored \d+ out of a possible \d+ using \d+ turns.", response):
             respond(user_id, response)
             advent.new_game(user_id)
-            r.set("yesno:"+user_id, "new_game")
+            r.set("yesno:" + user_id, "new_game")
             smooch.send_postbacks(user_id, "Do you want to play again?",
                                   {"Yes": "start_new_yes",
                                    "No": "start_new_no"})

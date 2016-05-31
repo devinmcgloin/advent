@@ -5,12 +5,12 @@ import re
 import time
 
 import redis
+import smooch
 from rq import Worker, Connection
 
-from pq import PriorityQueue
-import smooch
+from datastructures.pq import PriorityQueue
 
-r = redis.from_url(os.getenv("REDIS_URL", 'redis://localhost:6379'))
+from conn import r
 
 listen = ["default"]
 
