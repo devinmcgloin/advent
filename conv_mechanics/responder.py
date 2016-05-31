@@ -118,7 +118,7 @@ def info_message(user_response, user_id):
     """1531"""
     response = advent.respond(user_id, "info").split("\n")
     message = response[0:3]
-    smooch.send_message(user_id, message, True)
+    smooch.send_message(user_id, "\n".join(message), True)
     smooch.send_links(user_id, response[3], {"More Info"
                                                     : "https://devinmcgloin.com/advent/info/"})
     return True
