@@ -92,8 +92,8 @@ class ParseException(Exception):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
-    #smooch.delete_all_webhooks()
-    #smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
-    #smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
+    smooch.delete_all_webhooks()
+    smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
+    smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port)

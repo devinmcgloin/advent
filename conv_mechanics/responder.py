@@ -93,7 +93,8 @@ def normal_response(user_response, user_id):
 
     elif re.search("Welcome to adventure!!", response):
         message = response.split("\n")
-        message = message[0] + "\nAdventure is a text based game, and a port of the classic terminal game Advent. " + message[1]
+        message = message[0] + "\nAdventure is a text based game, and a port of the classic terminal game Advent. " + \
+                  message[1]
         q.enqueue_call(func=respond, args=(user_id, message))
         return True
     else:
@@ -103,25 +104,21 @@ def normal_response(user_response, user_id):
         return True
 
 
-# fixme
 def help_message(user_response, user_id):
     """1378"""
     response = advent.respond(user_id, "help").split("\n")
     message = response[0:3]
-    respond(user_id, "\n".join(message))
-    smooch.send_links(user_id, {"More Help"
-                                : "https://devinmcgloin.com/advent/help/"})
+    smooch.send_links(user_id, "\n".join(message), {"More Help"
+                                                    : "https://devinmcgloin.com/advent/help/"})
     return True
 
 
-# fixme
 def info_message(user_response, user_id):
     """1531"""
     response = advent.respond(user_id, "info").split("\n")
     message = response[0:4]
-    respond(user_id, "\n".join(message))
-    smooch.send_links(user_id, {"More Info"
-                                : "https://devinmcgloin.com/advent/info/"})
+    smooch.send_links(user_id, "\n".join(message), {"More Info"
+                                                    : "https://devinmcgloin.com/advent/info/"})
     return True
 
 
