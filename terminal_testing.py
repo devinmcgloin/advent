@@ -4,9 +4,11 @@ Simple terminal interface to a redis instance in order to test game mechanics.
 You can provide optional command line arguments to connect to a redis instance of your choice.
 """
 
-import adventure.loader as advent
 import sys
+
 import redis
+
+from adventure import advent
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

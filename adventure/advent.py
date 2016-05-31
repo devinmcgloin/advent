@@ -6,8 +6,6 @@ import logging
 import os
 import re
 
-import redis
-
 from .data import parse
 from .game import Game
 import random
