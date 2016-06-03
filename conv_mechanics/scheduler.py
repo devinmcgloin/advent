@@ -1,11 +1,4 @@
-import logging
-import random as random
-import re
-import time
-
 import smooch
-
-from datastructures.pq import PriorityQueue
 
 
 def respond(user_id, response):

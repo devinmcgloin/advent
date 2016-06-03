@@ -381,6 +381,7 @@ class Game(Data):
                     prop = obj.prop
                 logging.debug("obj={}".format(obj))
                 logging.debug("prop={}".format(prop))
+                logging.debug("obj prop={}".format(obj.messages[prop]))
 
                 self.write(obj.messages[prop])
 
