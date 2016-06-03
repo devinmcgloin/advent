@@ -70,7 +70,7 @@ def new_user(user_response, user_id):
 
 def normal_response(user_response, user_id):
     response = advent.respond(user_id, user_response).strip()
-    logging.info("user={0} game reply={1}".format(user_id, response.replace("\n", "")))
+    logging.info("user={0} game reply={1}".format(user_id, response.replace("\n", " ")))
     if advent.yes_no_question(user_id):
         split_response = response.split("\n")
         question = split_response[-1]
