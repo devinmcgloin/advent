@@ -4,7 +4,7 @@ import re
 import smooch
 
 from adventure import advent
-from conn import r, q
+from conn import r
 from conv_mechanics.scheduler import respond
 
 
@@ -54,12 +54,12 @@ def game_fallback(postback_payload, user_id):
                                   [("Yes", "start_new_yes"),
                                    ("No", "start_new_no")])
             return True
-        q.enqueue_call(func=respond, args=(user_id, response))
+        respond(user_id, response)
         r.delete("yesno:" + user_id)
         return True
     elif postback_payload.endswith("no"):
         response = advent.respond(user_id, "no")
-        q.enqueue_call(func=respond, args=(user_id, response))
+        respond(user_id, response)
         r.delete("yesno:" + user_id)
         return True
     else:

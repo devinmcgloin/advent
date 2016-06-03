@@ -5,7 +5,7 @@ import smooch
 
 import conv_mechanics.tip as tip
 from adventure import advent
-from conn import r, q
+from conn import r
 from conv_mechanics.scheduler import respond
 
 
@@ -91,9 +91,7 @@ def normal_response(user_response, user_id):
                                ("No", "start_new_no")])
         return True
     else:
-        logging.debug("user={0} game reply={1}".format(user_id, response))
-
-        q.enqueue_call(func=respond, args=(user_id, response))
+        respond(user_id, response)
         return True
 
 

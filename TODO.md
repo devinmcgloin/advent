@@ -1,9 +1,11 @@
 # Todo
 
 ## Game Mechanics
+
 * Need to QA `fee fie foe foo`
 
 ## Leaderboard
+
 * Display on site
 * Display simple leaderboad or ranking in app.
 
