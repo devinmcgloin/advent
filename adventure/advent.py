@@ -4,15 +4,15 @@ Handles interfacing with the Adventure module.
 
 import logging
 import os
+import random
 import re
 
+from conn import r
 from .data import parse
 from .game import Game
-import random
-
-from conn import r
 
 capitalize = ["don", "woods", "i", "willie", "crowther.", "devin", "mcgloin", "i'll", "i've", "i'd"]
+upper = ["sw", "w", "n", "e", "s", "ne", "nw", "ne", "se"]
 
 
 def user_exists(user_id):
@@ -63,6 +63,8 @@ def cap(s):
         return "McGloin"
     if s in capitalize:
         return s.capitalize()
+    if s in upper:
+        return s.upper()
     return s
 
 
