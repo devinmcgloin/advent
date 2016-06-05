@@ -1,1 +1,1 @@
-web: python -u server.py
+web: newrelic-admin run-program python -u server.py
