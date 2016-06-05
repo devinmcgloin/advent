@@ -2,8 +2,6 @@
 
 ## Game Mechanics
 
-* Need to QA `fee fie foe foo`
-
 ## Leaderboard
 
 * Display on site
@@ -15,3 +13,5 @@
     * Pirate Dialog
     * Signs
     * Side Notes
+
+* Fix tip response when only tip is specified.
