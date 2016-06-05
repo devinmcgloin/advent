@@ -39,7 +39,7 @@ def process_tip(user_response, user_id):
     # Smooch deals in terms of cents, so dollar amounts have to be converted
     tip_amount_adj = 100 * tip_amount
     smooch.request_payment(user_id, "Thank you for supporting Adventure",
-                           (("Confirm Tip for {:.2f}".format(tip_amount), tip_amount_adj)))
+                           [("Confirm Tip for {:.2f}".format(tip_amount), tip_amount_adj)])
     logging.info("{1} tip from {0}".format(user_id, tip_amount))
     r.lpush("tip:" + user_id, tip_amount)
     return True
