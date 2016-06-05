@@ -115,20 +115,34 @@ def info_message(user_response, user_id):
 
 
 def process_response(user_response, user_id):
-
     user_exists = advent.user_exists(user_id)
 
     if r.get("yesno:" + user_id):
         return yes_no_question(user_response, user_id)
     elif tip.is_tip(user_response.lower()):
         return process_tip(user_response, user_id)
-    elif user_exists and (user_response.lower() == "restart" or user_response.lower() == "reset"):
+    elif user_exists and is_reset(user_response):
         return restart(user_response, user_id)
-    elif user_exists and (user_response.lower() == "help" or user_response.lower() == "?"):
+    elif user_exists and is_help(user_response):
         return help_message(user_response, user_id)
-    elif user_exists and user_response.lower() == "info":
+    elif user_exists and is_info(user_response):
         return info_message(user_response, user_id)
     elif user_exists:
         return normal_response(user_response, user_id)
     else:
         return new_user(user_response, user_id)
+
+
+def is_reset(user_response):
+    lower_response = user_response.lower()
+    return re.search("/?(score|reset)", lower_response)
+
+
+def is_help(user_response):
+    lower_response = user_response.lower()
+    return re.search("/?(\?|help)", lower_response)
+
+
+def is_info(user_response):
+    lower_response = user_response.lower()
+    return re.search("/?info", lower_response)
