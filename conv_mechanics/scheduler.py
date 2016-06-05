@@ -4,6 +4,9 @@ import smooch
 
 def respond(user_id, response):
 
+    if response == "" or user_id == "":
+        return
+
     messages = response.split("\n")
 
     stop = random.randint(2, 4)
