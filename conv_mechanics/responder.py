@@ -115,6 +115,7 @@ def info_message(user_response, user_id):
 
 
 def process_response(user_response, user_id):
+
     user_exists = advent.user_exists(user_id)
 
     if r.get("yesno:" + user_id):
