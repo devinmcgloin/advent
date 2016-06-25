@@ -115,10 +115,11 @@ def setup():
 
 def is_unique(conversation):
     msg_id = parse.get_message_id(conversation)
-    if r.get("conv:"+msg_id) is True:
+    if r.exists("msg:"+msg_id):
         return False
     else:
-        r.set("conv:"+msg_id, True)
+        r.set("msg:"+msg_id, True)
+        return True
 
 if __name__ == '__main__':
     app.run()
