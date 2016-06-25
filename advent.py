@@ -16,7 +16,6 @@ from parse import smooch_parse as parse
 app = Flask(__name__)
 
 
-
 @app.template_filter()
 def datetimefilter(value, format='%Y/%m/%d %H:%M'):
     """convert a datetime to a different format."""
@@ -27,6 +26,7 @@ app.jinja_env.filters['datetimefilter'] = datetimefilter
 
 @app.route('/yesno', methods=['POST'])
 def process_postback():
+
     data = request.data.decode("utf-8")
 
     logging.info(data)
@@ -91,16 +91,15 @@ class ParseException(Exception):
     def __init__(self, *args, **kwargs):
         Exception.__init__(self, *args, **kwargs)
 
+
 def setup_webhooks():
     smooch.delete_all_webhooks()
     smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
     smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
 
 
-
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
     setup_webhooks()
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run()
