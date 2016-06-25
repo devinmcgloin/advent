@@ -92,15 +92,10 @@ class ParseException(Exception):
         Exception.__init__(self, *args, **kwargs)
 
 def setup_webhooks():
-    try:
-        smooch.delete_all_webhooks()
-        smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
-        smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
-    except smooch.exceptions.ServerError:
-        sleep_time = 60
-        logging.error("Unable to configure webhooks. sleeping for %d seconds".format(sleep_time))
-        time.sleep(sleep_time)
-        setup_webhooks()
+    smooch.delete_all_webhooks()
+    smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
+    smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
+
 
 
 if __name__ == '__main__':
