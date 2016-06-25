@@ -98,7 +98,7 @@ def setup_webhooks():
     except smooch.exceptions.ServerError:
         sleep_time = 60
         logging.error("Unable to configure webhooks. sleeping for %d seconds".format(sleep_time))
-        thread.sleep(sleep_time)
+        time.sleep(sleep_time)
         setup_webhooks()
 
 
