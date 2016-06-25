@@ -15,3 +15,6 @@
     * Side Notes
 
 * Fix tip response when only tip is specified.
+
+## Performance
+* Verify response code on smooch return values.
