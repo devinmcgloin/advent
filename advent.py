@@ -82,7 +82,6 @@ def index():
 
 @app.route('/highscores')
 def display_highscores():
-    logging.error("BAD ERROR FROM HIGHSCORES")
     return render_template("highscores.html", title="Highscores", month=datetime.datetime.now(),
                            month_scores=[("Kevin K.", 105), ("Gerald G.", 98)],
                            all_time_scores=[("Jason J.", 243), ("Usain U.", 210)])

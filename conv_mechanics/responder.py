@@ -1,21 +1,26 @@
 import logging
 import re
+import os
 
 import smooch
+import redis
+
+
 
 import conv_mechanics.tip as tip
 from adventure import advent
-from conn import r
+from conn import r, q
 from conv_mechanics.scheduler import respond
+
 
 
 def yes_no_question(user_response, user_id):
     response_type = r.get("yesno:" + user_id)
     logging.debug("Response type={}".format(response_type))
     if response_type == b'restart':
-        smooch.send_postbacks(user_id, "Do you want to restart?",
+        q.enqueue_call(smooch.send_postbacks, args=(user_id, "Do you want to restart?",
                               [("Yes", "restart_yes"),
-                               ("No", "restart_no")])
+                               ("No", "restart_no")]))
         return True
     elif response_type == b'new_game':
         smooch.send_postbacks(user_id, "Do you want to play again?",
@@ -23,9 +28,9 @@ def yes_no_question(user_response, user_id):
                                ("No", "start_new_no")])
         return True
     elif response_type == b'game':
-        smooch.send_postbacks(user_id, "Please answer the question.",
+        q.enqueue_call(smooch.send_postbacks, args=(user_id, "Please answer the question.",
                               [("Yes", "yes"),
-                               ("No", "no")])
+                               ("No", "no")]))
         return True
     else:
         logging.error("Extraneous response type={}".format(response_type))
@@ -38,8 +43,8 @@ def process_tip(user_response, user_id):
 
     # Smooch deals in terms of cents, so dollar amounts have to be converted
     tip_amount_adj = 100 * tip_amount
-    smooch.request_payment(user_id, "Thank you for supporting Adventure",
-                           [("Confirm Tip for {:.2f}".format(tip_amount), tip_amount_adj)])
+    q.enqueue_call(smooch.request_payment, args=(user_id, "Thank you for supporting Adventure",
+                           [("Confirm Tip for {:.2f}".format(tip_amount), tip_amount_adj)]))
     logging.info("{1} tip from {0}".format(user_id, tip_amount))
     r.lpush("tip:" + user_id, tip_amount)
     return True
@@ -47,9 +52,9 @@ def process_tip(user_response, user_id):
 
 def restart(user_response, user_id):
     r.set("yesno:" + user_id, "restart")
-    smooch.send_postbacks(user_id, "Do you want to restart?\n I cannot undo this.",
+    q.enqueue_call(smooch.send_postbacks, args=(user_id, "Do you want to restart?\n I cannot undo this.",
                           [("Yes", "restart_yes"),
-                           ("No", "restart_no")])
+                           ("No", "restart_no")]))
     return True
 
 
@@ -60,10 +65,10 @@ def new_user(user_response, user_id):
                       "Adventure is a text based game, and a port of the classic terminal game Advent."]
     question = "Would you like instructions?"
     logging.debug("split_response={} question={}".format(split_response, question))
-    respond(user_id, "\n".join(split_response))
-    smooch.send_postbacks(user_id, question,
+    q.enqueue_call(respond, args=(user_id, "\n".join(split_response)))
+    q.enqueue_call(smooch.send_postbacks, args=(user_id, question,
                           [("Yes", "yes"),
-                           ("No", "no")])
+                           ("No", "no")]))
     r.set("yesno:" + user_id, "game")
     return True
 
@@ -76,9 +81,9 @@ def normal_response(user_response, user_id):
         question = split_response[-1]
         del split_response[-1]
         respond(user_id, "\n".join(split_response))
-        smooch.send_postbacks(user_id, question,
+        q.enqueue_call(smooch.send_postbacks, args=(user_id, question,
                               [("Yes", "yes"),
-                               ("No", "no")])
+                               ("No", "no")]))
         r.set("yesno:" + user_id, "game")
         return True
 
@@ -86,9 +91,9 @@ def normal_response(user_response, user_id):
         respond(user_id, response)
         advent.new_game(user_id)
         r.set("yesno:" + user_id, "new_game")
-        smooch.send_postbacks(user_id, "Do you want to play again?",
+        q.enqueue_call(smooch.send_postbacks, args=(user_id, "Do you want to play again?",
                               [("Yes", "start_new_yes"),
-                               ("No", "start_new_no")])
+                               ("No", "start_new_no")]))
         return True
     else:
         respond(user_id, response)
@@ -109,8 +114,9 @@ def info_message(user_response, user_id):
     """1531"""
     response = advent.respond(user_id, "info").split("\n")
     message = response[0:3]
-    smooch.send_message(user_id, "\n".join(message), True)
-    smooch.send_links(user_id, response[3], [("More Info", "https://devinmcgloin.com/advent/info/")])
+    q.enqueue_call(smooch.send_message, args=(user_id, "\n".join(message), True))
+    q.enqueue_call(smooch.send_links,
+                   args=(user_id, response[3], [("More Info", "https://devinmcgloin.com/advent/info/")]))
     return True
 
 
