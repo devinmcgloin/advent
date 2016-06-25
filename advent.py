@@ -58,7 +58,7 @@ def process_mesage():
         user_response = parse.most_recent_msg(request_data)
         user_id = parse.get_user_id(request_data)
     except:
-        logging.debug("PARSE FAILED={}".format(sys.exc_info()[0]))
+        logging.error("PARSE FAILED={}".format(sys.exc_info()[0]))
         raise ParseException(sys.exc_info()[0])
 
     logging.info("user_id={0}, user_response={1}".format(user_id, user_response))
@@ -82,6 +82,7 @@ def index():
 
 @app.route('/highscores')
 def display_highscores():
+    logging.error("BAD ERROR FROM HIGHSCORES")
     return render_template("highscores.html", title="Highscores", month=datetime.datetime.now(),
                            month_scores=[("Kevin K.", 105), ("Gerald G.", 98)],
                            all_time_scores=[("Jason J.", 243), ("Usain U.", 210)])
@@ -92,14 +93,21 @@ class ParseException(Exception):
         Exception.__init__(self, *args, **kwargs)
 
 
-def setup_webhooks():
-    smooch.delete_all_webhooks()
-    smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
-    smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
+@app.before_first_request
+def setup():
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s',
+                        stream=sys.stdout)
+
+    try:
+        smooch.delete_all_webhooks()
+        smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
+        smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
+    except:
+        logging.error("Failed to create webhooks")
+
+
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
-    setup_webhooks()
     app.run()
