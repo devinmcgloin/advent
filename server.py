@@ -38,7 +38,8 @@ def process_postback():
     success = postback.process_postback(postback_payload, user_id)
 
     if success:
-        return "OK"
+        logging.info("Successful response={}".format(user_id))
+        return "", 200
     else:
         logging.error("Invalid Postback={} user={} data={}".format(postback_payload, user_id, request_data))
 
@@ -67,7 +68,7 @@ def process_mesage():
 
     if success:
         logging.info("Successful response={}".format(user_id))
-        return "OK"
+        return "", 200
     else:
         logging.error("Response Failure user_response={} user_id={}".format(user_response, user_id))
 
