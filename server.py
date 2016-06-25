@@ -66,6 +66,7 @@ def process_mesage():
     success = responder.process_response(user_response, user_id)
 
     if success:
+        logging.info("Successful response={}".format(user_id))
         return "OK"
     else:
         logging.error("Response Failure user_response={} user_id={}".format(user_response, user_id))

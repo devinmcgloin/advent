@@ -10,7 +10,6 @@ Apache License, Version 2.0 as detailed in the accompanying README.txt.
 # FORTRAN using Emacs with an interactive search for newline-2012-tab,
 # that is typed C-s C-q C-j 2 0 1 2 C-i).
 
-import logging
 import pickle
 import random
 import zlib
@@ -76,7 +75,6 @@ class Game(Data):
 
     def yesno(self, s, casual=False, **kwargs):
         """Ask a question and prepare to receive a yes-or-no answer."""
-        logging.debug("yesno-callback={}".format(kwargs))
         self.write(s)
         self.yesno_callback = kwargs
         self.yesno_casual = casual
@@ -328,7 +326,6 @@ class Game(Data):
 
     def describe_location(self):  # 2000
 
-        logging.debug("self={}".format(self))
         loc = self.loc
 
         if loc.n == 0:
@@ -360,7 +357,6 @@ class Game(Data):
             self.write_message(8)
 
         if not self.is_dark:
-            logging.debug("objects_here={}".format(self.objects_here))
             for obj in self.objects_here:
 
                 if obj is self.steps and self.gold.is_toting:
@@ -379,9 +375,6 @@ class Game(Data):
                     prop = 1
                 else:
                     prop = obj.prop
-                logging.debug("obj={}".format(obj))
-                logging.debug("prop={}".format(prop))
-                logging.debug("obj prop={}".format(obj.messages[prop]))
 
                 self.write(obj.messages[prop])
 
@@ -438,7 +431,6 @@ class Game(Data):
 
     def _do_command(self, words):
         if self.yesno_callback is not None:
-            logging.debug("_do_command callback={}".format(self.yesno_callback))
             answer = YESNO_ANSWERS.get(words[0], None)
             if answer is None:
                 if self.yesno_casual:
@@ -1720,7 +1712,6 @@ class Game(Data):
             self.write_message(54)
 
     def call_callback(self, answer, **kwargs):
-        logging.debug(kwargs)
         callback_id = kwargs["callback_id"]
         if "finish_turn_callback" == callback_id:
             self.finish_turn_callback(answer, kwargs["dat"])
