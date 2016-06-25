@@ -18,6 +18,10 @@ def get_postback_payload(postback):
     return postback["postbacks"][0]["action"]["payload"]
 
 
+def get_message_id(conversation):
+    return conversation["messages"]["_id"]
+
+
     # [{
     #     "_id": "571530ee4fae94c32b78b170",
     #     "type": "postback",

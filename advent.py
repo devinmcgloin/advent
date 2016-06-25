@@ -33,6 +33,9 @@ def process_postback():
 
     request_data = json.loads(data)
 
+    if not is_unique(request_data):
+        return "", 200
+
     postback_payload = parse.get_postback_payload(request_data)
     user_id = parse.get_user_id(request_data)
 
@@ -49,11 +52,16 @@ def process_postback():
 def process_mesage():
     """Listens at /hooks for posts to that url and gets response from game engine."""
 
+
     data = request.data.decode("utf-8")
 
     logging.info(data)
 
     request_data = json.loads(data)
+
+    if not is_unique(request_data):
+        return "", 200
+
     try:
         user_response = parse.most_recent_msg(request_data)
         user_id = parse.get_user_id(request_data)
@@ -105,8 +113,12 @@ def setup():
     except:
         logging.error("Failed to create webhooks")
 
-
-
+def is_unique(conversation):
+    msg_id = parse.get_message_id(conversation)
+    if r.get("conv:"+msg_id) is True:
+        return False
+    else:
+        r.set("conv:"+msg_id, True)
 
 if __name__ == '__main__':
     app.run()
