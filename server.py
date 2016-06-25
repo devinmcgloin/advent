@@ -96,7 +96,10 @@ def setup_webhooks():
         smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
         smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
     except smooch.exceptions.ServerError:
-        logging.error("Unable to configure webhooks.")
+        sleep_time = 60
+        logging.error("Unable to configure webhooks. sleeping for %d seconds".format(sleep_time))
+        thread.sleep(sleep_time)
+        setup_webhooks()
 
 
 if __name__ == '__main__':
