@@ -88,12 +88,18 @@ class ParseException(Exception):
     def __init__(self, *args, **kwargs):
         Exception.__init__(self, *args, **kwargs)
 
+def setup_webhooks():
+    try:
+        smooch.delete_all_webhooks()
+        smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
+        smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
+    except smooch.exceptions.ServerError:
+        logging.error("Unable to configure webhooks.")
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s')
-    smooch.delete_all_webhooks()
-    smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
-    smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
+    setup_webhooks()
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
