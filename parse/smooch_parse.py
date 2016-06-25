@@ -19,7 +19,7 @@ def get_postback_payload(postback):
 
 
 def get_message_id(conversation):
-    return conversation["messages"]["_id"]
+    return conversation["messages"][0]["_id"]
 
 
     # [{
