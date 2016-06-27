@@ -33,7 +33,7 @@ def process_postback():
 
     request_data = json.loads(data)
 
-    if not is_unique(request_data):
+    if not is_unique(request_data, parse.get_postback_id):
         return "", 200
 
     postback_payload = parse.get_postback_payload(request_data)
@@ -59,7 +59,7 @@ def process_mesage():
 
     request_data = json.loads(data)
 
-    if not is_unique(request_data):
+    if not is_unique(request_data, parse.get_message_id):
         return "", 200
 
     try:
@@ -113,13 +113,14 @@ def setup():
     except:
         logging.error("Failed to create webhooks")
 
-def is_unique(conversation):
-    msg_id = parse.get_message_id(conversation)
+def is_unique(conversation, func):
+    msg_id = func(conversation)
     if r.exists("msg:"+msg_id):
         return False
     else:
         r.set("msg:"+msg_id, True)
         return True
+
 
 if __name__ == '__main__':
     app.run()
