@@ -3,6 +3,7 @@ import json
 import logging
 import sys
 
+import smooch
 from flask import Flask, request, render_template, redirect
 
 from conn import r
@@ -102,12 +103,12 @@ def setup():
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s',
                         stream=sys.stdout)
 
-    # try:
-    #     smooch.delete_all_webhooks()
-    #     smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
-    #     smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
-    # except:
-    #     logging.error("Failed to create webhooks")
+    try:
+        smooch.delete_all_webhooks()
+        smooch.create_webhook("https://advent.devinmcgloin.com/general", ["message:appUser"])
+        smooch.create_webhook("https://advent.devinmcgloin.com/yesno", ["postback"])
+    except:
+        logging.error("Failed to create webhooks")
 
 
 def is_unique(conversation, func):
