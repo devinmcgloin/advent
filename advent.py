@@ -107,8 +107,8 @@ def setup():
         smooch.delete_all_webhooks()
         smooch.create_webhook("https://advent.devinmcgloin.com/general", ["message:appUser"])
         smooch.create_webhook("https://advent.devinmcgloin.com/yesno", ["postback"])
-    except:
-        logging.error("Failed to create webhooks")
+    except Exception as e:
+        logging.error("Failed to create webhooks: {}".format(e))
 
 
 def is_unique(conversation, func):

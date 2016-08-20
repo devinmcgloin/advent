@@ -1,1 +1,1 @@
-web: newrelic-admin run-program gunicorn advent:app --preload
+web: gunicorn advent:app --preload
