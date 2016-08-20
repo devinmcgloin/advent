@@ -1,11 +1,8 @@
+import datetime
 import json
 import logging
-import os
 import sys
-import datetime
-import time
 
-import smooch
 from flask import Flask, request, render_template, redirect
 
 from conn import r
@@ -21,12 +18,12 @@ def datetimefilter(value, format='%Y/%m/%d %H:%M'):
     """convert a datetime to a different format."""
     return value.strftime(format)
 
+
 app.jinja_env.filters['datetimefilter'] = datetimefilter
 
 
 @app.route('/yesno', methods=['POST'])
 def process_postback():
-
     data = request.data.decode("utf-8")
 
     logging.info(data)
@@ -51,7 +48,6 @@ def process_postback():
 @app.route('/general', methods=['POST'])
 def process_mesage():
     """Listens at /hooks for posts to that url and gets response from game engine."""
-
 
     data = request.data.decode("utf-8")
 
@@ -106,19 +102,20 @@ def setup():
                         format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d  - %(message)s',
                         stream=sys.stdout)
 
-    try:
-        smooch.delete_all_webhooks()
-        smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
-        smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
-    except:
-        logging.error("Failed to create webhooks")
+    # try:
+    #     smooch.delete_all_webhooks()
+    #     smooch.create_webhook("http://advent.devinmcgloin.com/general", ["message:appUser"])
+    #     smooch.create_webhook("http://advent.devinmcgloin.com/yesno", ["postback"])
+    # except:
+    #     logging.error("Failed to create webhooks")
+
 
 def is_unique(conversation, func):
     msg_id = func(conversation)
-    if r.exists("msg:"+msg_id):
+    if r.exists("msg:" + msg_id):
         return False
     else:
-        r.set("msg:"+msg_id, True)
+        r.set("msg:" + msg_id, True)
         return True
 
 

@@ -1,9 +1,7 @@
-import random
 import smooch
 
 
 def respond(user_id, response):
-
     if response == "" or user_id == "":
         return
 

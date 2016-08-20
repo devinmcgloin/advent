@@ -4,7 +4,7 @@ import re
 import smooch
 
 from adventure import advent
-from conn import r, q
+from conn import r
 from conv_mechanics.scheduler import respond
 
 
@@ -12,13 +12,13 @@ def start_new(postback_payload, user_id):
     if postback_payload.endswith("yes"):
         advent.new_game(user_id)
         response = advent.respond(user_id, "no")
-        q.enqueue_call(func=smooch.send_message, args=(user_id, response, True))
+        smooch.send_message(user_id, response, True)
         r.delete("yesno:" + user_id)
         return True
     elif postback_payload.endswith("no"):
         r.delete("yesno:" + user_id)
         r.delete("save:" + user_id)
-        q.enqueue_call(smooch.send_message, args=(user_id, "Ok.", True))
+        smooch.send_message(user_id, "Ok.", True)
         return True
     else:
         logging.error("Invalid postback={}".format(postback_payload))
@@ -29,12 +29,12 @@ def restart(postback_payload, user_id):
     if postback_payload.endswith("yes"):
         advent.new_game(user_id)
         response = advent.respond(user_id, "no")
-        q.enqueue_call(func=smooch.send_message, args=(user_id, response, True))
+        smooch.send_message(user_id, response, True)
         r.delete("yesno:" + user_id)
         return True
     elif postback_payload.endswith("no"):
         r.delete("yesno:" + user_id)
-        q.enqueue_call(smooch.send_message, args=(user_id, "Ok.", True))
+        smooch.send_message(user_id, "Ok.", True)
         return True
     else:
         logging.error("Invalid postback={}".format(postback_payload))
@@ -50,9 +50,9 @@ def game_fallback(postback_payload, user_id):
             respond(user_id, response)
             advent.new_game(user_id)
             r.set("yesno:" + user_id, "new_game")
-            q.enqueue_call(func=smooch.send_postbacks, args=(user_id, "Do you want to play again?",
+            smooch.send_postbacks(user_id, "Do you want to play again?",
                                   [("Yes", "start_new_yes"),
-                                   ("No", "start_new_no")]))
+                                   ("No", "start_new_no")])
             return True
         respond(user_id, response)
         r.delete("yesno:" + user_id)
