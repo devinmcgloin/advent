@@ -54,7 +54,7 @@ def load_advent_dat(data):
 def format_response(response):
     clean_response = response.replace("\n", " ").lower().strip()
     clean_response = " ".join([cap(s) for s in clean_response.split(" ")])
-    rsp = "\n".join(accum_words(clean_response))
+    rsp = " ".join(accum_words(clean_response))
     return rsp
 
 
