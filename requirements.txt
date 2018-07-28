@@ -9,11 +9,15 @@ Jinja2==2.10
 MarkupSafe==1.0
 numpy==1.15.0
 pandas==0.23.3
-pypwt==0.1.1
+pkginfo==1.4.2
+PyJWT==1.6.4
 python-dateutil==2.7.3
-python-smooch==1.0.1
+python-smooch==1.0.3
 pytz==2018.5
 redis==2.10.6
+requests==2.19.1
+requests-toolbelt==0.8.0
 six==1.11.0
+tqdm==4.24.0
 urllib3==1.23
 Werkzeug==0.14.1
